@@ -12,7 +12,7 @@ recompiladas sem internet.
 | `github-mark.svg`/`.pdf` | GitHub Octicons, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Octicons-mark-github.svg) | MIT; marca da GitHub |
 | `claude-simbolo.svg`/`.pdf` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Claude_AI_symbol.svg) | CC0; marca da Anthropic |
 | `xkcd-1597-git.png` | Randall Munroe, [xkcd #1597](https://xkcd.com/1597/) | CC BY-NC 2.5 |
-| `ilha_das_cobras.jpg` | Helder da Rocha, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:IlhaCobras.jpg), reduzida para 1600 px | CC BY-SA 2.0 |
+| `ilha_das_cobras.jpg` | Vista aérea da Ilha das Cobras (Arsenal de Marinha do Rio de Janeiro, 10/08/2021), Marinha do Brasil, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Arsenal_de_Marinha_do_Rio_de_Janeiro_(AMRJ)_(52652566017).jpg). Arquivo original, 4000×2250, sem alteração | CC BY-SA 2.0 |
 
 Os PDFs foram convertidos dos SVGs com o Inkscape.
 
