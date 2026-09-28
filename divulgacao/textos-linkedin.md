@@ -24,7 +24,7 @@ A solução coube em 8 passos, com --allow-unrelated-histories, a decisão consc
 
 A lição que fica: IA é ferramenta de engenharia, não autoridade. Quem define o objetivo, valida no sistema real e decide continua sendo gente.
 
-📦 O repositório tem 105 páginas: slides, apostila para iniciantes com exercícios, roteiro de falas e o prompt final completo.
+📦 O repositório tem 122 páginas: slides, apostila para iniciantes (com padrões de commit e assinatura de commits com GPG e SSH), exercícios, roteiro de falas e o prompt final completo.
 👉 github.com/ronidomingues/git-ia-docs
 
 Se você também usa agentes de IA no dia a dia, qual regra já teve que acrescentar depois de uma falha?
@@ -43,7 +43,7 @@ Se você também usa agentes de IA no dia a dia, qual regra já teve que acresce
 
 **Descrição:**
 
-Capacitação completa (slides, apostila e roteiro de falas, 105 páginas em LaTeX) criada a partir de dois problemas reais do estágio.
+Capacitação completa (slides, apostila e roteiro de falas, 122 páginas em LaTeX) criada a partir de dois problemas reais do estágio.
 
 • Git e GitLab: integração de sistemas já versionados a um GitLab Self-Managed com a main protegida, unindo históricos sem ancestral comum (--allow-unrelated-histories, ours × theirs e Merge Request, também pelo GitLab CLI). Inclui um exercício que reproduz o caso sem servidor.
 

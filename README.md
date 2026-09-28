@@ -14,7 +14,7 @@
 | Pasta | Conteúdo |
 |---|---|
 | [`apresentacao/`](apresentacao/apresentacao.pdf) | 39 slides (16:9) para uma hora de exposição |
-| [`apostila/`](apostila/apostila.pdf) | Apostila-guia de 56 páginas, para quem nunca usou Git, com exercícios e respostas |
+| [`apostila/`](apostila/apostila.pdf) | Apostila-guia de 73 páginas, para quem nunca usou Git, com padrões de commit, assinatura de commits com GPG e SSH, e exercícios com respostas |
 | [`roteiro-de-falas/`](roteiro-de-falas/roteiro_de_falas.pdf) | O que falar em cada slide, com horário, gestos e frases de transição |
 | [`model/SYSTEM_DOCUMENTATION.md`](model/SYSTEM_DOCUMENTATION.md) | O prompt final de engenharia reversa e documentação (42 seções, em inglês, com saída em PT-BR) |
 | [`roteiro_versao_01.md`](roteiro_versao_01.md), [`roteiro_versão_final.md`](roteiro_versão_final.md) | O planejamento: os assuntos obrigatórios e o roteiro final |
@@ -31,6 +31,11 @@
 - A armadilha de `ours` e `theirs`, e por que os papéis se invertem no rebase.
 - Um exercício que reproduz o caso inteiro sem servidor, usando um repositório *bare* no lugar do GitLab.
 - Todos os comandos e saídas foram executados de verdade para montar o material.
+
+**Padrões e assinatura de commits**
+- Conventional Commits, os tipos mais usados, gitmoji e onde as referências divergem entre si; commitlint e gitmoji-cli.
+- Assinatura com GPG e com SSH, passo a passo para Linux e Windows, conferida com as documentações oficiais do GitHub e do GitLab.
+- O selo *Verified*, o `allowed_signers`, o *vigilant mode* e o que acontece com os commits antigos quando uma chave é revogada.
 
 **IA e engenharia de prompts, com dados**
 - A evolução do prompt em 5 versões, medida no histórico real do Claude Code: 717 prompts em 123 sessões. O tamanho foi de 231 para 37.883 caracteres.
