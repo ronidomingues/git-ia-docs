@@ -1,0 +1,98 @@
+\chapter{Antes de começar}
+\label{cap:antes}
+
+\section{Por que versionar?}
+
+Quem já trabalhou num documento importante conhece esta pasta:
+
+\begin{center}
+\begin{tikzpicture}[doc/.style={draw=azulMedio, fill=cinzaSuave, rounded corners=2pt,
+    font=\ttfamily\small, anchor=west, minimum width=9cm, inner sep=5pt}]
+  \node[doc] at (0,0) {\faFile*[regular]\; relatorio.docx};
+  \node[doc] at (0,-0.75) {\faFile*[regular]\; relatorio\_v2.docx};
+  \node[doc] at (0,-1.5) {\faFile*[regular]\; relatorio\_v2\_final.docx};
+  \node[doc] at (0,-2.25) {\faFile*[regular]\; relatorio\_v2\_final\_AGORA\_VAI.docx};
+  \node[doc, draw=vermelhoAlerta, fill=vermelhoClaro] at (0,-3) {\faFile*[regular]\; relatorio\_v2\_final\_corrigido(1).docx};
+\end{tikzpicture}
+\end{center}
+
+Ninguém sabe qual é a versão certa, quem mudou o quê, nem por quê. Agora imagine isso com um sistema de milhares de arquivos e várias pessoas mexendo ao mesmo tempo. É esse o problema que um \termo{sistema de controle de versão} resolve.
+
+Com controle de versão, cada alteração fica registrada com:
+
+\begin{itemize}
+  \item \textbf{o que} mudou, linha a linha;
+  \item \textbf{quem} mudou e \textbf{quando};
+  \item \textbf{por que} mudou, numa mensagem escrita por quem fez;
+  \item a possibilidade de \textbf{voltar} a qualquer estado anterior;
+  \item várias pessoas trabalhando \textbf{em paralelo} sem apagar o trabalho umas das outras.
+\end{itemize}
+
+\begin{analogia}
+Pense no Git como o \enquote{histórico de versões} de um documento compartilhado, só que muito mais poderoso: ele guarda o projeto inteiro, funciona sem internet e deixa cada pessoa trabalhar numa cópia própria antes de juntar tudo.
+\end{analogia}
+
+\section{O terminal, sem medo}
+
+Quase tudo nesta apostila é feito no \termo{terminal} (também chamado de linha de comando, console ou \emph{shell}). É uma janela onde você digita uma ordem e aperta \tecla{Enter}.
+
+\begin{itemize}
+  \item \textbf{Linux}: procure por \enquote{Terminal} no menu de aplicativos.
+  \item \textbf{Windows}: depois de instalar o Git, use o \textbf{Git Bash}, que vem junto. Ele aceita os mesmos comandos mostrados aqui.
+\end{itemize}
+
+Cinco comandos básicos ajudam a se localizar:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{0.9\linewidth}{@{}>{\ttfamily\color{azulMB}}l X@{}}
+\toprule
+pwd & mostra em que pasta você está \\
+ls & lista os arquivos da pasta atual \\
+cd pasta & entra numa pasta (\texttt{cd ..} volta uma pasta) \\
+mkdir nome & cria uma pasta \\
+cat arquivo & mostra o conteúdo de um arquivo \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Instalando o Git}
+
+\begin{terminalt}{· LINUX (DEBIAN/UBUNTU)}
+sudo apt update
+sudo apt install git
+\end{terminalt}
+
+No \textbf{Windows}, baixe o instalador oficial em \url{https://git-scm.com/downloads} e aceite as opções padrão. Ao final, abra o \textbf{Git Bash}.
+
+Para conferir se deu certo:
+
+\begin{terminal}
+git --version
+\end{terminal}
+\begin{saida}
+git version 2.34.1
+\end{saida}
+
+Qualquer versão a partir da 2.28 funciona com todos os exemplos desta apostila. Se a sua for mais antiga, veja a dica da seção \ref{sec:primeiro-repo}.
+
+\section{Dizendo ao Git quem é você}
+
+Todo registro no Git leva o nome e o e-mail de quem o fez. Configure uma única vez por computador:
+
+\begin{terminal}
+git config --global user.name "Seu Nome"
+git config --global user.email "seu.email@exemplo.com"
+# faz a branch inicial de novos repositórios se chamar main
+git config --global init.defaultBranch main
+\end{terminal}
+
+\begin{dica}
+Use o mesmo e-mail cadastrado no GitLab da instituição. Assim o GitLab reconhece os seus commits e mostra a sua foto e o seu nome ao lado deles.
+\end{dica}
+
+Para ver o que está configurado:
+
+\begin{terminal}
+git config --list
+\end{terminal}

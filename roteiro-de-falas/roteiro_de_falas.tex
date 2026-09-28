@@ -1,0 +1,432 @@
+% =============================================================================
+% Roteiro de falas da apresentação — um bloco por slide, com horário.
+% Compilar com:  latexmk roteiro_de_falas.tex   (o .latexmkrc escolhe o XeLaTeX)
+% =============================================================================
+\documentclass[11pt,a4paper]{article}
+\input{../estilo/marinha-comum.tex}
+\usepackage{polyglossia}
+\setdefaultlanguage[variant=brazilian]{portuguese}
+\usepackage{amssymb}
+\usepackage[top=22mm,bottom=20mm,left=22mm,right=22mm]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage[hidelinks]{hyperref}
+
+\color{cinzaTexto}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\linespread{1.15}
+\setlist[itemize,1]{label={\color{ouroMB}\small$\blacksquare$}, itemsep=1pt, topsep=2pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{\footnotesize\color{azulMedio}Roteiro de falas \,·\, Git, GitLab e IA aplicada à Engenharia de Software}
+\fancyhead[R]{\marca{13}}
+\fancyfoot[R]{\begin{tikzpicture}[baseline=(n.base)]\node[fill=azulMB, text=white, font=\footnotesize\bfseries, inner sep=3pt, minimum width=8mm](n){\thepage};\end{tikzpicture}}
+
+% Um slide: \begin{slide}{nº}{título}{horário}{duração} ... \end{slide}
+\newtcolorbox{slide}[4]{enhanced, breakable, arc=2pt, boxrule=0pt,
+  colback=white, colframe=azulMB, borderline west={3pt}{0pt}{azulMB},
+  left=10pt, right=8pt, top=5pt, bottom=6pt, before skip=7pt, after skip=7pt,
+  title={\titulofonte\large SLIDE #1 \enspace·\enspace \MakeUppercase{#2}\hfill{\small\montlight #3 \enspace·\enspace #4}},
+  colbacktitle=azulMB, coltitle=white}
+% Divisória de bloco
+\newcommand{\bloco}[3]{\par\vspace{5mm}
+  \begin{tikzpicture}
+    \node[anchor=west, text=ouroMB, font=\titulofonte\fontsize{34}{34}\selectfont] (n) at (0,0) {#1};
+    \node[anchor=west, text=azulMB, font=\titulofonte\fontsize{22}{22}\selectfont] at ([xshift=3mm]n.east) {\MakeUppercase{#2}};
+    \node[anchor=east, font=\small\bfseries\color{verdeMB}] at (\linewidth,0) {#3};
+  \end{tikzpicture}\par\vspace{1mm}}
+% Rubricas
+\newcommand{\acao}[1]{{\color{ouroMB!75!black}\small\itshape [#1]}}
+\newcommand{\deixa}[1]{\par{\color{verdeMB}\small\bfseries \faLongArrowAltRight\; Deixa:} {\small\itshape #1}}
+\newcommand{\cmd}[1]{\texttt{\color{azulMB}#1}}
+
+\begin{document}
+
+% ---------- Capa curta ---------------------------------------------------------
+\begin{tikzpicture}
+  \fill[azulMB] (0,0) rectangle (\linewidth,3.9);
+  \fill[ouroMB] (0,0) rectangle (\linewidth,0.12);
+  \node[anchor=north west, text=ouroMB, font=\small\bfseries] at (0.6,3.55) {ROTEIRO DE FALAS \,·\, USO DO INSTRUTOR};
+  \node[anchor=north west, text=white, font=\titulofonte\fontsize{26}{27}\selectfont, align=left] at (0.6,2.95)
+    {GIT, GITLAB E IA APLICADA\\À ENGENHARIA DE SOFTWARE};
+  \node[anchor=south west, text=white!80!azulMB, font=\footnotesize] at (0.6,0.35)
+    {Ronivaldo D. Andrade \,·\, Marinha do Brasil \,·\, 01/10/2026, das 10h às 11h};
+  \node[anchor=east, inner sep=0pt] at (\linewidth-6mm,1.95) {\marca[white]{22}};
+\end{tikzpicture}
+
+\vspace{3mm}
+\begin{tcolorbox}[enhanced, arc=2pt, boxrule=0pt, colback=ouroClaro, borderline west={3pt}{0pt}{ouroMB}, left=9pt]
+\small
+\textbf{Como usar.} Cada bloco corresponde a um slide de \texttt{apresentacao.pdf} e traz o horário em que ele deve começar e quanto tempo dura. O texto é um guia, não algo para ler palavra por palavra: fale com as suas palavras e use as frases em negrito como âncora.\\[3pt]
+\acao{Entre colchetes} ficam gestos e ações. A \textbf{\color{verdeMB}deixa} no fim de cada bloco é a frase de transição para o slide seguinte.\\[3pt]
+\textbf{Relógio.} Fundamentos até 10h22 · Problema 1 até 10h37 · Problema 2 até 10h55 · Perguntas até 11h00. Se atrasar, os slides 8, 12 e 35 podem ser passados rápido: o conteúdo deles está completo na apostila.
+\end{tcolorbox}
+
+% =============================================================================
+\bloco{00}{Abertura}{10h00 – 10h03}
+% =============================================================================
+
+\begin{slide}{1}{Capa}{10h00}{1 min}
+Bom dia a todos. Obrigado por estarem aqui. Eu sou o Ronivaldo, estagiário de Análise e Desenvolvimento de Sistemas aqui na Marinha.
+
+Nesta hora eu quero mostrar \textbf{duas coisas que resolvi no estágio}: como trazer um sistema que já existia para o GitLab da instituição, e como usei um agente de IA para documentar sistemas que não tinham documentação nenhuma. Para chegar lá, a gente passa antes pelos fundamentos de Git e GitLab.
+\deixa{Deixa eu mostrar o caminho que a gente vai fazer.}
+\end{slide}
+
+\begin{slide}{2}{O que vamos ver nesta hora}{10h01}{2 min}
+São quatro partes. \acao{aponte para os números}
+Primeiro, os \textbf{fundamentos}: Git, GitLab, branch, Merge Request e o GitLab pelo terminal. Depois, o \textbf{Problema 1}, que é integrar um sistema já versionado ao GitLab institucional. Em seguida, o \textbf{Problema 2}: documentar sistemas legados com IA. E fecho com a visão geral.
+
+\acao{aponte para a caixa amarela}
+Um aviso importante: \textbf{hoje é só exposição}. Não precisam anotar os comandos. Tudo o que eu mostrar está na apostila, com mais calma, passo a passo e com exercícios práticos para fazerem depois.
+\deixa{Então vamos começar pelo começo: por que versionar?}
+\end{slide}
+
+% =============================================================================
+\bloco{01}{Fundamentos}{10h03 – 10h22}
+% =============================================================================
+
+\begin{slide}{3}{Divisória — Fundamentos}{10h03}{15 s}
+Primeira parte: fundamentos.
+\end{slide}
+
+\begin{slide}{4}{Por que versionar?}{10h03}{1 min 30}
+\acao{pausa, deixe o slide falar} Quem aqui nunca teve uma pasta assim? \enquote{sistema\_v2\_final\_AGORA\_VAI}.
+
+O problema dessa pasta não é o nome feio. É que ela \textbf{não responde nada}: quem mudou, o quê, por quê, e qual é a versão certa. Agora imaginem isso com um sistema de milhares de arquivos e várias pessoas mexendo ao mesmo tempo.
+
+\acao{aponte para a coluna da direita}
+Um controle de versão responde exatamente essas perguntas: \textbf{o que, quem, quando e por quê}. Permite voltar a qualquer ponto e deixa várias pessoas trabalhando em paralelo.
+\deixa{E a ferramenta que faz isso é o Git.}
+\end{slide}
+
+\begin{slide}{5}{O que é o Git?}{10h05}{2 min}
+O Git é um \textbf{sistema distribuído de controle de versão}. Vou traduzir essa frase.
+
+Cada \textbf{commit} é uma fotografia do projeto num momento, com quem tirou a foto, quando e por quê. \acao{aponte para A, B, C, D} As fotos se encadeiam e formam o \textbf{histórico}. A etiqueta \enquote{main} é só um marcador apontando para a foto mais recente.
+
+\enquote{Distribuído} quer dizer que \textbf{cada pessoa tem o histórico completo no próprio computador}. \acao{aponte para o código} Esses três comandos criam um repositório e registram o primeiro commit sem servidor nenhum, sem internet.
+\deixa{Antes de seguir, um aviso honesto sobre o Git.}
+\end{slide}
+
+\begin{slide}{6}{Um aviso honesto}{10h07}{1 min}
+\acao{deixe as pessoas lerem por alguns segundos}
+Essa tirinha é famosa entre desenvolvedores porque é verdade para muita gente: decora uns comandos e, se der erro, apaga tudo e baixa de novo.
+
+A proposta de hoje é o contrário: \textbf{entender o modelo por trás dos comandos}. Se vocês entenderem commit, branch e merge, os comandos passam a fazer sentido e ninguém precisa apagar projeto.
+\deixa{E aí aparece a primeira confusão comum: Git, GitLab e GitHub.}
+\end{slide}
+
+\begin{slide}{7}{Git, GitLab, GitHub e glab}{10h08}{2 min}
+São quatro nomes parecidos para coisas diferentes.
+
+O \textbf{Git} é o sistema de controle de versão, o que roda no computador. \textbf{GitLab} e \textbf{GitHub} são plataformas \emph{em cima} do Git: hospedam o repositório e acrescentam revisão, permissões, automação. A diferença que mais importa para nós é que \textbf{o GitLab pode ser instalado na infraestrutura da própria instituição}. E o \textbf{glab} é a ferramenta de linha de comando do GitLab.
+
+\acao{aponte para a caixa amarela}
+Se ajudar a guardar: \textbf{o Git é o motor, o GitLab é a garagem com oficina e controle de acesso, e o glab é o controle remoto da garagem}.
+\deixa{Vamos ver o que tem nessa garagem.}
+\end{slide}
+
+\begin{slide}{8}{GitLab: uma plataforma inteira}{10h10}{1 min}
+Além de guardar o código, o GitLab reúne num só lugar: branches, Merge Requests, revisão de código, permissões, Issues para organizar tarefas, CI/CD para testar e publicar automaticamente, releases, e a parte de auditoria e segurança.
+
+Não vamos ver tudo hoje. \textbf{O foco é branch e Merge Request}, que é o que usamos no dia a dia.
+\deixa{Mas antes, o ponto que interessa diretamente a uma instituição como a nossa.}
+\end{slide}
+
+\begin{slide}{9}{GitLab Self-Managed}{10h11}{2 min}
+O GitLab tem uma versão que a instituição \textbf{instala e administra nos próprios servidores}. É o Self-Managed. \acao{aponte para a linha tracejada} O código, o histórico e os usuários ficam do lado de dentro, sem ir para uma nuvem externa. A instituição controla quem acessa, as permissões e a auditoria.
+
+\acao{aponte para a caixa vermelha}
+Mas cuidado com uma conclusão errada: \textbf{estar dentro de casa não é o mesmo que estar seguro}. Segurança continua dependendo de configuração, atualização, backup, firewall, monitoramento e controle de acesso. O ganho do Self-Managed é o \emph{controle}, não uma segurança automática.
+\deixa{Agora, dentro do GitLab, como o trabalho de várias pessoas se organiza? Com branches.}
+\end{slide}
+
+\begin{slide}{10}{Branch}{10h13}{2 min}
+Uma branch é uma \textbf{linha de desenvolvimento}. \acao{aponte para a linha azul} A \texttt{main} é a linha principal. \acao{aponte para a verde} Alguém sai dela para criar o login, trabalha isolado e depois volta. \acao{aponte para a amarela} Outra pessoa, ao mesmo tempo, corrige um bug em outra linha.
+
+Isso permite trabalho isolado, em paralelo, com espaço para experimentar, e revisão \emph{antes} de integrar.
+
+\acao{aponte para a caixa} Um detalhe técnico que ajuda muito: \textbf{branch não é uma cópia do projeto}. É só um ponteiro para um commit. Por isso criar uma branch é instantâneo, mesmo num sistema enorme.
+\deixa{E quando o trabalho numa branch termina, como ele volta para a main? Pelo Merge Request.}
+\end{slide}
+
+\begin{slide}{11}{Merge Request}{10h15}{1 min 30}
+O Merge Request é um \textbf{pedido para integrar uma branch em outra}. No GitHub ele se chama Pull Request, é a mesma ideia.
+
+\acao{percorra os passos} A equipe visualiza as mudanças, comenta, pede ajustes, os testes automáticos rodam, alguém com permissão aprova, e aí acontece o merge.
+
+Resumindo em três palavras \acao{aponte para a linha de baixo}: \textbf{commit registra, branch isola, Merge Request pede a integração}.
+\deixa{Vou mostrar rapidamente os comandos que fazem isso.}
+\end{slide}
+
+\begin{slide}{12}{Os comandos do dia a dia}{10h16}{1 min 30}
+\acao{não leia a tabela inteira} Não precisam decorar, a tabela está na apostila. Só três observações.
+
+À esquerda, o ciclo básico: \cmd{status} para ver o estado, \cmd{add} para preparar, \cmd{commit} para registrar. À direita, o trabalho com o servidor.
+
+E uma diferença que confunde muita gente: \textbf{\cmd{fetch} baixa as novidades sem mexer nos seus arquivos; \cmd{pull} baixa e já mescla}. O \cmd{fetch} vai ser importante no Problema 1.
+\deixa{Juntando esses comandos, o fluxo de uma equipe fica assim.}
+\end{slide}
+
+\begin{slide}{13}{Fluxo básico de trabalho em equipe}{10h18}{1 min 30}
+\acao{percorra da esquerda para a direita}
+Atualiza com \cmd{pull}, altera o código, confere com \cmd{status}, prepara com \cmd{add}, registra com \cmd{commit}, envia com \cmd{push}. Até aqui, tudo no seu computador. Depois, no GitLab: Merge Request, revisão e merge.
+
+\acao{aponte para a caixa verde} A regra de ouro: \textbf{comece sempre com \cmd{git pull} e trabalhe numa branch própria}. Quanto mais tempo longe da main, maior a chance do próximo assunto: conflito.
+\deixa{Então, o que é um conflito?}
+\end{slide}
+
+\begin{slide}{14}{Conflito}{10h19}{2 min}
+Conflito acontece quando \textbf{duas branches mudaram a mesma linha} de formas diferentes. Numa, o nome virou João; na outra, Maria. O Git não tem como saber qual está certo.
+
+\acao{aponte para a caixa amarela} E aqui está o ponto: \textbf{conflito não é erro}. É o Git dizendo \enquote{não consigo decidir isso sozinho, decide você}.
+
+\acao{aponte para o código} Ele marca o arquivo assim: entre os sinais de menor fica a versão da branch em que você está, depois dos iguais fica a versão que está chegando. Você deixa o que deve ficar, apaga os marcadores, faz \cmd{add} e \cmd{commit}. Pronto.
+\deixa{Por último nos fundamentos: dá para fazer a parte do GitLab sem sair do terminal?}
+\end{slide}
+
+\begin{slide}{15}{GitLab CLI}{10h21}{1 min}
+Dá, com o \textbf{glab}. Você autentica uma vez e, a partir daí, cria Merge Request, lista, acompanha o pipeline, tudo pelo terminal.
+
+\acao{aponte para a caixa} Só um cuidado: \textbf{as regras do GitLab valem no terminal também}. Se a main exige aprovação, o glab não pula essa etapa.
+\deixa{Com esses fundamentos, dá para entender o primeiro problema real.}
+\end{slide}
+
+% =============================================================================
+\bloco{02}{Problema 1}{10h22 – 10h37}
+% =============================================================================
+
+\begin{slide}{16}{Divisória — Problema 1}{10h22}{15 s}
+Problema 1: um sistema que já tinha histórico no computador precisa entrar no GitLab institucional, onde a main já existe e está protegida.
+\end{slide}
+
+\begin{slide}{17}{O cenário na instituição}{10h22}{1 min 30}
+Quando a gente pede um repositório no GitLab institucional, ele \textbf{já vem pronto}: com a branch main criada, um README padrão e a main protegida. Não dá para fazer push direto nela, só entra coisa por Merge Request.
+
+Isso é ótimo para a governança. O problema é que os nossos sistemas \textbf{já existiam}, alguns com anos de histórico Git no computador. E a gente não queria perder esse histórico.
+\deixa{E por que isso é um problema?}
+\end{slide}
+
+\begin{slide}{18}{Dois históricos que não se conhecem}{10h24}{2 min}
+\acao{aponte para as duas linhas}
+Em cima, o histórico do sistema: A, B, C, D. Embaixo, o histórico que o GitLab criou: X e Y. As duas linhas \textbf{nasceram separadas}. Não existe nenhum commit em comum entre elas.
+
+O Git só sabe juntar linhas que nasceram de um mesmo ponto. \acao{aponte para a mensagem} Então, se você tenta um merge comum, ele simplesmente recusa: \enquote{refusing to merge unrelated histories}. E o push direto na main também é recusado, porque ela é protegida.
+\deixa{O que a gente quer, então?}
+\end{slide}
+
+\begin{slide}{19}{O objetivo}{10h26}{1 min}
+Quero chegar a isto: \textbf{um commit de merge, o M, que une as duas linhas} sem perder nenhum commit.
+
+Depois do M, os dois históricos passam a ter um ancestral em comum. E aí, o Merge Request para a main flui normalmente, sem ser recusado.
+\deixa{São oito passos. Os três primeiros são preparação.}
+\end{slide}
+
+\begin{slide}{20}{Passos 1 a 3}{10h27}{2 min}
+\textbf{Passo 1}: \cmd{git remote add origin} e a URL. Estou dizendo ao Git local onde fica o repositório no GitLab.
+
+\textbf{Passo 2}: \cmd{git fetch origin}. Baixo o histórico do GitLab \emph{sem mesclar nada}. Ele fica guardado como \texttt{origin/main}, uma cópia de leitura.
+
+\textbf{Passo 3}: renomeio a minha main local para \texttt{desenvolvimento}. \acao{aponte para a caixa} Por quê? Para não confundir a minha main com a main protegida do GitLab. Agora tenho duas coisas separadas e com nomes claros.
+\deixa{Agora vem o passo que realmente une os históricos.}
+\end{slide}
+
+\begin{slide}{21}{Passo 4: autorizar a união}{10h29}{1 min 30}
+O merge, agora com o parâmetro \cmd{--allow-unrelated-histories}.
+
+\acao{aponte para as duas caixas} Esse parâmetro assusta, então quero deixar claro: ele \textbf{não} significa \enquote{ignore os conflitos}. Significa \textbf{\enquote{eu sei que esses históricos não têm ancestral comum, e autorizo o Git a tentar juntar}}.
+
+E como os dois lados têm um README diferente, o resultado típico é um conflito no README.
+\deixa{E é resolvendo esse conflito que aparece a parte que mais causa erro.}
+\end{slide}
+
+\begin{slide}{22}{Passo 5: ours e theirs}{10h31}{3 min}
+\acao{fale devagar, este é o ponto central do bloco}
+Para resolver um conflito de um arquivo inteiro, o Git oferece dois atalhos: \textbf{ours}, \enquote{o nosso}, e \textbf{theirs}, \enquote{o deles}.
+
+A armadilha é achar que \enquote{nosso} quer dizer \enquote{o arquivo do meu computador}. \textbf{Não é isso.} Os dois arquivos estão no meu computador. \acao{aponte para o diagrama} \textbf{Ours é o lado da branch em que eu estou} no momento do merge. \textbf{Theirs é o lado que está chegando.}
+
+No nosso caso, eu estou na branch \texttt{desenvolvimento}, que tem o README do sistema. Eu queria manter esse README. Então o comando é \cmd{git restore --ours README.md}. Se eu quisesse o README institucional, seria \cmd{--theirs}.
+
+\acao{aponte para a caixa vermelha} Se interpretar ao contrário, você preserva o arquivo errado e nem percebe.
+\deixa{Decidido o conflito, falta registrar e publicar.}
+\end{slide}
+
+\begin{slide}{23}{Passos 6 e 7}{10h34}{1 min}
+\textbf{Passo 6}: \cmd{add} e \cmd{commit}. Esse commit é o M, o que une os dois históricos.
+
+\textbf{Passo 7}: \cmd{git push origin desenvolvimento}. \acao{aponte para a direita} No GitLab passam a existir, lado a lado, a main intocada e protegida, e a branch desenvolvimento com o sistema e o histórico integrado.
+\deixa{E o último passo fecha o ciclo.}
+\end{slide}
+
+\begin{slide}{24}{Passo 8: o Merge Request}{10h35}{1 min 30}
+Abro um Merge Request de desenvolvimento para main. Pode ser pela interface web, com a aprovação de quem tem permissão no repositório, ou pelo terminal com o \cmd{glab mr create}.
+
+\acao{aponte para a caixa verde} E agora ele \textbf{não é recusado}, porque os históricos são relacionados e todo conflito já foi tratado no computador. Esse é o ponto final e fundamental do processo.
+\deixa{Resumindo tudo em uma tela.}
+\end{slide}
+
+\begin{slide}{25}{Resumo em oito linhas}{10h36}{1 min}
+\acao{percorra os comentários à direita}
+Conectar, baixar, renomear, unir, decidir o conflito, registrar, publicar e pedir a integração. Oito linhas.
+
+\acao{aponte para a caixa} Na apostila tem um exercício que \textbf{reproduz esse caso inteiro no computador de vocês}, sem precisar de servidor. Recomendo muito: é o melhor jeito de fixar.
+\deixa{Com isso, os sistemas passaram a estar versionados. Mas surgiu outro problema.}
+\end{slide}
+
+% =============================================================================
+\bloco{03}{Problema 2}{10h37 – 10h55}
+% =============================================================================
+
+\begin{slide}{26}{Divisória — Problema 2}{10h37}{15 s}
+Problema 2: os sistemas agora estão no GitLab. Mas quase nenhum tinha documentação.
+\end{slide}
+
+\begin{slide}{27}{Versionado não é documentado}{10h37}{1 min 30}
+Ter histórico não significa que alguém \emph{entende} o sistema. \acao{percorra a cadeia} Código existente com pouca documentação leva a conhecimento concentrado em poucas pessoas. Isso deixa manutenção e evolução difíceis e, no fim, vira \textbf{risco operacional}: se a pessoa que conhece sai, o conhecimento vai junto.
+
+\acao{aponte para a caixa} A solução que adotei foi usar um \textbf{agente de IA}, o Claude Code, para acelerar o entendimento, a refatoração e a documentação.
+\deixa{Mas é importante dizer como a IA entra nisso.}
+\end{slide}
+
+\begin{slide}{28}{IA: ferramenta, não autoridade}{10h39}{2 min}
+A ideia \textbf{não é \enquote{mandar a IA escrever a documentação}}. É usá-la como ferramenta de engenharia.
+
+\acao{percorra da esquerda para a direita} O engenheiro define o objetivo e as restrições. O agente analisa, sugere, documenta e só executa o que foi autorizado. E no fim o engenheiro revisa, valida no sistema real e decide.
+
+\acao{aponte para a caixa vermelha} A IA pode errar: interpretar mal uma regra de negócio, a intenção de quem escreveu o código. Por isso \textbf{toda documentação gerada por IA é validada contra o sistema real}. A decisão é sempre humana.
+\deixa{E aqui entra uma parte que eu acho a mais interessante: como o prompt evoluiu.}
+\end{slide}
+
+\begin{slide}{29}{Como o prompt evoluiu}{10h41}{3 min}
+O prompt é a instrução que a gente dá ao agente. \acao{aponte para a fonte, embaixo} Esses dados são reais: vêm do histórico de uso da ferramenta, com 717 prompts em 123 sessões desde julho.
+
+\acao{percorra as barras de cima para baixo}
+\begin{itemize}
+  \item \textbf{V0}, em julho: já pedia para não modificar nada e descobrir antes de escrever.
+  \item \textbf{V1}: pedidos curtos em português, que cresciam a cada vez que eu reusava.
+  \item \textbf{V2}: uma lista estruturada com 47 itens.
+  \item \textbf{V3}: um protocolo grande, em inglês, com uma fase só de leitura.
+  \item \textbf{V4}, o final: 42 seções, com saída obrigatória em português.
+\end{itemize}
+
+Reparem na escala: ela é logarítmica. \textbf{Do primeiro pedido livre ao final, o prompt cresceu cerca de 164 vezes.} E o V4 é menor que o V3: ficou mais enxuto e mais rigoroso ao mesmo tempo.
+\deixa{E esse crescimento não foi à toa: cada regra nova veio de uma falha.}
+\end{slide}
+
+\begin{slide}{30}{Cada falha virou uma regra}{10h44}{2 min}
+\acao{leia linha a linha, da esquerda para a direita}
+A documentação saía superficial, e eu tinha que pedir de novo: entrou a análise em fases. O agente preenchia lacunas sozinho: entrou a regra de registrar como GAP e nunca inventar. Havia risco de alterar código durante a análise: entrou a fase zero, só leitura. O prompt em inglês gerou resposta em inglês: entrou a exigência de tudo em português. E o agente seguia em frente diante de risco: entrou o protocolo de parar e reportar.
+
+A mensagem é: \textbf{um bom prompt não nasce pronto. Ele é o registro das falhas que você já corrigiu.}
+\deixa{E isso melhorou o resultado? Os números.}
+\end{slide}
+
+\begin{slide}{31}{O que melhorou, em números}{10h46}{2 min}
+Com os prompts livres, \textbf{cerca de 53\% das tarefas de documentação precisaram de retrabalho}: refazer, reenviar, pedir para continuar de onde parou. Com os prompts estruturados, com contrato de execução, \textbf{caiu para cerca de 25\%}.
+
+\acao{aponte para a caixa amarela, com honestidade} Quero ser transparente: é uma \textbf{estimativa com amostra pequena}. Foram 15 tarefas de um lado e 4 do outro, e parte das paradas foi por limite de uso da ferramenta, não do prompt. Não é prova estatística, é indicação. O que é concreto são as cinco regras nascidas de cinco falhas.
+\deixa{Como o prompt final organiza o trabalho? Em fases.}
+\end{slide}
+
+\begin{slide}{32}{O método em fases}{10h48}{2 min}
+O prompt proíbe fazer tudo de uma vez. \acao{percorra as fases} Fase zero: descoberta só de leitura. Depois o mapa do sistema, a análise profunda, um modelo de conhecimento, e, antes de documentar, \textbf{uma fase só para validar o entendimento}. Aí sim vem a documentação, e depois auditoria e evolução.
+
+\acao{aponte para a caixa} Por quê? Para evitar a cascata: \textbf{entendimento errado gera documentação errada, que gera recomendação errada, que gera um projeto futuro errado}. Em vez disso: descobrir, evidenciar, modelar, validar, documentar, auditar e evoluir.
+\deixa{E dentro dessas fases, o prompt tem três travas de segurança.}
+\end{slide}
+
+\begin{slide}{33}{As três travas de segurança}{10h50}{2 min 30}
+\acao{uma caixa de cada vez}
+\textbf{Primeira: somente leitura.} Na descoberta o agente não altera, não apaga, não renomeia, não faz commit. Descobrir antes de modificar.
+
+\textbf{Segunda: nunca inventar.} Todo fato precisa de evidência no código. O que não dá para confirmar recebe um rótulo: desconhecido, não verificado, inferido, requer validação. E o prompt separa como o sistema \emph{é} hoje, como \emph{deveria ser}, e a diferença entre os dois.
+
+\textbf{Terceira: parar e reportar.} Diante de dúvida, contradição, risco ou falta de autorização, o agente \textbf{para, reporta e aguarda uma decisão humana}. E parar não é falhar: é o comportamento certo.
+\deixa{Uma última observação sobre o prompt: o idioma.}
+\end{slide}
+
+\begin{slide}{34}{Prompt em inglês, documentação em português}{10h52}{1 min 30}
+O prompt final está em inglês, e a documentação sai em português. \textbf{Idioma do prompt e idioma do resultado são coisas diferentes.}
+
+Isso eu aprendi na prática: \acao{aponte para os itens} quando o V3 foi só em inglês, o agente passou a responder em inglês. No dia seguinte, o V4 ganhou a regra \acao{aponte para o texto em azul}: todo conteúdo em português brasileiro.
+
+\acao{aponte para a nota de rodapé} A motivação do inglês é economizar tokens, mas isso eu não medi, então fica como prática adotada, não como resultado.
+\deixa{E, afinal, o que esse prompt entrega?}
+\end{slide}
+
+\begin{slide}{35}{O que o prompt pede e entrega}{10h53}{1 min 30}
+Ele se resume a seis perguntas: \acao{percorra a tabela} o que existe, como as partes se relacionam, como funciona, quais os riscos, como virar documentação útil, e se ela bate com o sistema real.
+
+\acao{aponte para a árvore de pastas} E a entrega é uma pasta de documentação: descoberta, mapa, arquitetura, regras de negócio, banco, APIs, segurança, problemas conhecidos, dívida técnica e um guia para leigos.
+
+O objetivo é transformar \textbf{\enquote{código que poucas pessoas conhecem}} em \textbf{\enquote{sistema que outras pessoas entendem e mantêm}}.
+\deixa{Vamos juntar as duas histórias.}
+\end{slide}
+
+% =============================================================================
+\bloco{04}{Encerramento}{10h55 – 11h00}
+% =============================================================================
+
+\begin{slide}{36}{Divisória — Encerramento}{10h55}{10 s}
+Para fechar.
+\end{slide}
+
+\begin{slide}{37}{A visão geral}{10h55}{1 min}
+Os dois problemas parecem diferentes, mas se completam. \acao{aponte para a esquerda} De um lado, \textbf{versionamento}: Git e GitLab dão histórico e revisão. \acao{aponte para a direita} Do outro, \textbf{conhecimento}: IA com validação humana gera documentação. \acao{aponte para baixo} Os dois juntos levam ao mesmo lugar: manutenção e evolução seguras.
+\end{slide}
+
+\begin{slide}{38}{Mensagem final}{10h56}{1 min 30}
+O conhecimento técnico de uma equipe \textbf{não pode morar só na cabeça de quem escreveu o sistema}.
+
+O código precisa ter histórico. O sistema precisa ter documentação. As alterações precisam de revisão. As decisões precisam de contexto.
+
+E a IA pode acelerar muito esse trabalho, \textbf{desde que dentro de um processo controlado}: objetivo claro, restrições bem definidas e validação humana.
+
+\acao{pausa} No fim, o objetivo é um só: \textbf{tornar os sistemas mais fáceis de compreender, manter, compartilhar e evoluir.}
+\end{slide}
+
+\begin{slide}{39}{Obrigado e perguntas}{10h57}{3 min}
+Muito obrigado pela atenção. \acao{aponte para o texto de baixo} A apostila traz tudo o que vimos, com mais calma, o passo a passo para reproduzir o Problema 1 e os exercícios práticos.
+
+Fico à disposição para perguntas.
+
+\acao{se sobrar tempo e ninguém perguntar, puxe uma destas:}
+\begin{itemize}
+  \item \enquote{Alguém já passou por um conflito de merge? Como resolveu?}
+  \item \enquote{Qual sistema aqui vocês acham que mais precisaria de documentação?}
+\end{itemize}
+\end{slide}
+
+% =============================================================================
+\bloco{}{Perguntas prováveis}{respostas curtas}
+% =============================================================================
+
+\begin{tcolorbox}[enhanced, breakable, arc=2pt, boxrule=0pt, colback=cinzaSuave, left=9pt]
+\small
+\textbf{\color{azulMB}Posso usar IA com o código dos sistemas da Marinha?}\\
+Só com autorização e dentro das normas de segurança da informação da OM. O agente envia trechos do código para um serviço externo. Para praticar, usem projetos pessoais ou de código aberto.
+
+\textbf{\color{azulMB}E se eu fizer o merge errado?}\\
+Enquanto o merge não virou commit, \cmd{git merge --abort} desfaz tudo. Depois do commit, dá para desfazer com \cmd{git revert}. Nada se perde no Git sem querer.
+
+\textbf{\color{azulMB}Por que não usar \texttt{push --force} na main?}\\
+Porque ela é protegida justamente para não aceitar isso, e porque apagaria o histórico institucional. O caminho correto é o Merge Request.
+
+\textbf{\color{azulMB}A IA não inventa coisas?}\\
+Pode inventar. Por isso o prompt exige evidência para cada fato, rótulos para o que não se confirma, e validação humana no fim.
+
+\textbf{\color{azulMB}Rebase funciona para o Problema 1?}\\
+Até funciona, mas reescreve o histórico e inverte o sentido de \texttt{ours} e \texttt{theirs}. O merge preserva tudo como aconteceu, e é mais seguro para quem está começando.
+
+\textbf{\color{azulMB}Onde está o prompt completo?}\\
+No arquivo \texttt{model/SYSTEM\_DOCUMENTATION.md}, junto com a apostila. O capítulo 6 da apostila explica cada parte.
+\end{tcolorbox}
+
+\end{document}

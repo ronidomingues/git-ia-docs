@@ -1,0 +1,866 @@
+% =============================================================================
+% Capacitação — Git, GitLab e IA aplicada à Engenharia de Software
+% Apresentação expositiva (1 h). Compilar com:  latexmk -xelatex apresentacao.tex
+% =============================================================================
+\documentclass[aspectratio=169,11pt]{beamer}
+\input{../estilo/marinha-comum.tex}
+\usepackage{polyglossia}
+\setdefaultlanguage[variant=brazilian]{portuguese}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ---------- Tema (Manual de Identidade Visual da MB) -------------------------
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{normal text}{fg=cinzaTexto,bg=white}
+\setbeamercolor{structure}{fg=azulMB}
+\setbeamercolor{alerted text}{fg=verdeMB}
+\setbeamerfont{alerted text}{series=\bfseries}
+\setbeamertemplate{itemize item}{\color{ouroMB}\raisebox{0.15ex}{\scriptsize$\blacksquare$}}
+\setbeamertemplate{itemize subitem}{\color{verdeMB}\scriptsize$\blacktriangleright$}
+\setbeamertemplate{enumerate item}{\color{azulMB}\bfseries\insertenumlabel.}
+\setlength{\leftmargini}{1.4em}
+
+% Faixa superior azul com o título em Bebas Neue e o logotipo branco à direita
+\setbeamertemplate{frametitle}{%
+  \nointerlineskip
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[azulMB] (current page.north west) rectangle ([yshift=-11mm]current page.north east);
+    \fill[ouroMB] ([yshift=-11mm]current page.north west) rectangle ([yshift=-11.8mm]current page.north east);
+    \node[anchor=west, text=white, font=\titulofonte\fontsize{21}{21}\selectfont]
+      at ([xshift=8mm,yshift=-5.7mm]current page.north west) {\MakeUppercase{\insertframetitle}};
+    \node[anchor=east, inner sep=0pt]
+      at ([xshift=-7mm,yshift=-5.5mm]current page.north east)
+      {\marca[white]{15}};
+  \end{tikzpicture}%
+  \vspace*{9mm}%
+}
+\setbeamertemplate{footline}{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south west, font=\tiny\color{azulMedio}]
+      at ([xshift=8mm,yshift=2.5mm]current page.south west)
+      {Git, GitLab e IA aplicada à Engenharia de Software \,·\, Marinha do Brasil \,·\, 01/10/2026};
+    \node[anchor=south east, font=\tiny\bfseries\color{azulMB}]
+      at ([xshift=-7mm,yshift=2.5mm]current page.south east)
+      {\insertframenumber\,/\,\inserttotalframenumber};
+  \end{tikzpicture}%
+}
+\setbeamersize{text margin left=8mm, text margin right=8mm}
+
+% Divisória de seção: fundo azul, número grande em ouro (abertura de capítulo
+% no mesmo espírito do manual, p. 31)
+\newcommand{\secao}[3]{%
+  \section{#2}
+  {\setbeamertemplate{footline}{}
+   \begin{frame}[plain]
+   \begin{tikzpicture}[remember picture, overlay]
+     \fill[azulMB] (current page.south west) rectangle (current page.north east);
+     \fill[ouroMB] ([xshift=14mm,yshift=-3mm]current page.west) rectangle ++(28mm,1.2mm);
+     \node[anchor=south west, text=ouroMB, font=\titulofonte\fontsize{96}{96}\selectfont]
+       at ([xshift=13mm,yshift=2mm]current page.west) {#1};
+     \node[anchor=north west, text=white, font=\titulofonte\fontsize{40}{40}\selectfont, align=left]
+       at ([xshift=14mm,yshift=-8mm]current page.west) {\MakeUppercase{#2}};
+     \node[anchor=north west, text=white!80!azulMB, font=\montlight\large, align=left, text width=11cm]
+       at ([xshift=14mm,yshift=-26mm]current page.west) {#3};
+     \node[anchor=south east, inner sep=0pt]
+       at ([xshift=-8mm,yshift=7mm]current page.south east)
+       {\marca[white]{20}};
+   \end{tikzpicture}
+   \end{frame}}%
+}
+
+% Blocos
+\newcommand{\destaque}[2][ouroMB]{%
+  \begin{tikzpicture}\node[fill=#1!18, draw=#1, line width=0.8pt, rounded corners=3pt,
+    inner sep=7pt, text width=\linewidth-16pt, font=\small, text=azulMB] {#2};\end{tikzpicture}}
+\newcommand{\etiqueta}[2][azulMB]{\tikz[baseline=(e.base)]\node[rotulo=#1](e){#2};}
+\newcommand{\cmd}[1]{{\ttfamily\color{azulMB}#1}}
+\lstset{style=terminal}
+
+\title{Git, GitLab e IA aplicada à Engenharia de Software}
+\author{Ronivaldo D. Andrade}
+\date{01/10/2026}
+
+\begin{document}
+
+% =============================================================================
+% CAPA
+% =============================================================================
+{\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+\begin{tikzpicture}[remember picture, overlay]
+  \node[anchor=north east, inner sep=0pt] at (current page.north east)
+    {\includegraphics[height=\paperheight]{\imagens/ilha_das_cobras.jpg}};
+  \fill[azulMB] (current page.south west) rectangle ([xshift=0.6\paperwidth]current page.north west);
+  \fill[ouroMB] ([xshift=0.6\paperwidth]current page.south west) rectangle ([xshift=0.605\paperwidth]current page.north west);
+  \node[anchor=north west, inner sep=0pt] at ([xshift=10mm,yshift=-8mm]current page.north west)
+    {\marca[white]{20}};
+  \node[anchor=north west, text=ouroMB, font=\small\bfseries] (k) at ([xshift=10mm,yshift=-22mm]current page.north west)
+    {CAPACITAÇÃO INTERNA};
+  \node[anchor=north west, text=white, align=left, inner xsep=0pt,
+        font=\titulofonte\fontsize{25}{26}\selectfont] (t) at ([yshift=-1mm]k.south west)
+    {GIT, GITLAB E IA APLICADA\\À ENGENHARIA DE SOFTWARE};
+  \node[anchor=north west, text=white!80!azulMB, align=left, text width=0.5\paperwidth, inner xsep=0pt,
+        font=\montlight\footnotesize] at ([yshift=-2mm]t.south west)
+    {Versionamento, colaboração e documentação de sistemas legados a partir de dois problemas reais};
+  \node[anchor=south west, text=white, align=left, font=\small] at ([xshift=10mm,yshift=6mm]current page.south west)
+    {\textbf{Ronivaldo D. Andrade}\\[1pt]
+     {\color{white!75!azulMB}\scriptsize Estagiário de Análise e Desenvolvimento de Sistemas}\\
+     {\color{white!75!azulMB}\scriptsize Marinha do Brasil}\\[2pt]
+     {\color{ouroMB}\footnotesize\bfseries 01/10/2026 \,·\, 10h às 11h}};
+\end{tikzpicture}
+\end{frame}}
+
+% =============================================================================
+\begin{frame}{O que vamos ver nesta hora}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}[every node/.style={anchor=west}]
+  \foreach \n/\t/\s/\y in {
+      01/Fundamentos/{Git, GitLab, branch, Merge Request, glab}/0,
+      02/Problema 1/{Trazer um sistema já versionado para o GitLab institucional}/-1.55,
+      03/Problema 2/{Documentar sistemas legados com um agente de IA}/-3.1,
+      04/Encerramento/{A visão geral e o que levar daqui}/-4.65}{
+    \node[font=\titulofonte\fontsize{30}{30}\selectfont, text=ouroMB] at (0,\y) {\n};
+    \node[font=\bfseries\color{azulMB}] at (1.25,\y+0.22) {\t};
+    \node[font=\footnotesize, text width=5.4cm] at (1.25,\y-0.32) {\s};
+  }
+\end{tikzpicture}
+\column{0.46\textwidth}
+\vspace{1mm}
+{\small\bfseries\color{azulMB} Ao final, você deve conseguir:}
+\begin{itemize}\small
+  \item diferenciar \alert{Git}, \alert{GitLab}, \alert{GitHub} e \alert{glab};
+  \item explicar branch, commit, merge e Merge Request;
+  \item entender e resolver um conflito;
+  \item unir dois históricos Git independentes;
+  \item usar um agente de IA como ferramenta de engenharia, com validação humana.
+\end{itemize}
+\vspace{2mm}
+\destaque{\faBook\enspace Os exercícios práticos estão na \textbf{apostila}. Aqui é só a exposição.}
+\end{columns}
+\end{frame}
+
+% =============================================================================
+\secao{01}{Fundamentos}{Git, GitLab, branches, Merge Requests e o GitLab CLI}
+% =============================================================================
+
+\begin{frame}{Por que versionar?}
+\begin{columns}[c]
+\column{0.47\textwidth}
+{\small Sem controle de versão, o histórico vira isto:}\\[3mm]
+\begin{tikzpicture}[doc/.style={draw=azulMedio, fill=cinzaSuave, rounded corners=2pt,
+    font=\ttfamily\scriptsize, anchor=west, minimum width=5.6cm, inner sep=4pt}]
+  \node[doc] (a) at (0,0) {\faFile*[regular]\; sistema.zip};
+  \node[doc] (b) at (0,-0.62) {\faFile*[regular]\; sistema\_v2.zip};
+  \node[doc] (c) at (0,-1.24) {\faFile*[regular]\; sistema\_v2\_final.zip};
+  \node[doc] (d) at (0,-1.86) {\faFile*[regular]\; sistema\_v2\_final\_AGORA\_VAI.zip};
+  \node[doc, draw=vermelhoAlerta, fill=vermelhoClaro] (e) at (0,-2.48) {\faFile*[regular]\; sistema\_v2\_final\_corrigido(1).zip};
+\end{tikzpicture}\\[2mm]
+{\footnotesize\color{vermelhoAlerta}\faTimesCircle\; Quem mudou? O quê? Por quê? Qual é a certa?}
+\column{0.49\textwidth}
+{\small Com o Git, cada mudança fica registrada com:}
+\begin{itemize}\small
+  \item \textbf{o que} mudou (diferença linha a linha);
+  \item \textbf{quem} mudou e \textbf{quando};
+  \item \textbf{por que} mudou (mensagem do commit);
+  \item a possibilidade de \textbf{voltar} a qualquer estado anterior;
+  \item várias pessoas trabalhando \textbf{em paralelo}.
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{O que é o Git?}
+\begin{columns}[c]
+\column{0.55\textwidth}
+\includegraphics[height=9mm]{\imagens/git-logo.pdf}\\[3mm]
+{\large Um \alert{sistema distribuído de controle de versão}.}\\[3mm]
+\begin{itemize}\small
+  \item Cada \textbf{commit} é uma fotografia do projeto num momento.
+  \item Os commits formam uma \textbf{linha do tempo}: o histórico.
+  \item Funciona \textbf{100\,\% local}, sem servidor nenhum:
+\end{itemize}
+\vspace{-1mm}
+\begin{lstlisting}
+git init
+git add .
+git commit -m "Primeiro commit"
+\end{lstlisting}
+\column{0.42\textwidth}
+\centering
+\begin{tikzpicture}
+  \foreach \l/\x in {A/0,B/1.3,C/2.6,D/3.9}{\node[commit] (\l) at (\x,0) {\l};}
+  \draw[hist] (A) -- (B) -- (C) -- (D);
+  \node[rotulo=verdeMB, above=4mm of D] (h) {main};
+  \draw[setafina, verdeMB] (h) -- (D);
+  \node[font=\scriptsize, text width=5cm, align=center, below=5mm of B.south east] {cada círculo = um commit\\(quem, quando, o quê, por quê)};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Um aviso honesto antes de continuar}
+\begin{columns}[c]
+\column{0.36\textwidth}
+\centering
+\includegraphics[height=0.78\textheight]{\imagens/xkcd-1597-git.png}
+\column{0.58\textwidth}
+{\small\itshape\color{azulMedio}
+\enquote{Isto é o Git. Ele controla trabalho colaborativo em projetos por meio de um belo modelo distribuído de árvore da teoria dos grafos.}\\[1mm]
+\enquote{Legal. Como a gente usa?}\\[1mm]
+\enquote{Não faço ideia. Só decora estes comandos\ldots{} se der erro, salva teu trabalho em outro lugar, apaga o projeto e baixa uma cópia nova.}}\\[5mm]
+\destaque[verdeMB]{Hoje a proposta é o contrário: \textbf{entender o modelo} por trás dos comandos, para não precisar apagar nada.}
+\vfill
+{\tiny\color{azulMedio} xkcd \#1597 “Git”, de Randall Munroe — CC BY-NC 2.5 — tradução livre.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Git, GitLab, GitHub e glab não são a mesma coisa}
+\renewcommand{\arraystretch}{1.25}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}m{14mm} >{\bfseries\color{azulMB}}m{24mm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+ & & \textbf{O que é} & \textbf{Para que serve} \\
+\midrule
+\includegraphics[height=6mm]{\imagens/git-logo.pdf} & Git & Sistema distribuído de controle de versão & Controlar o histórico do código \\
+\includegraphics[height=7mm]{\imagens/gitlab-tanuki.pdf} & GitLab & Plataforma baseada em Git, \alert{instalável na própria infraestrutura} & Hospedar, revisar, integrar (CI/CD) e colaborar \\
+\includegraphics[height=6mm]{\imagens/github-mark.pdf} & GitHub & Plataforma baseada em Git, majoritariamente em nuvem & Hospedar, revisar e colaborar \\
+\centering\faTerminal & GitLab CLI \texttt{glab} & Ferramenta de linha de comando & Operar o GitLab pelo terminal \\
+\bottomrule
+\end{tabularx}\\[2mm]
+\destaque{\textbf{Git} é o motor. \textbf{GitLab} e \textbf{GitHub} são a garagem com oficina, vistoria e controle de acesso. \textbf{glab} é o controle remoto da garagem.}
+\end{frame}
+
+\begin{frame}{GitLab: uma plataforma inteira em volta do Git}
+\centering
+\begin{tikzpicture}[f/.style={caixa, minimum width=3.1cm, minimum height=1.25cm, font=\footnotesize}]
+  \foreach \i/\ic/\t in {0/\faDatabase/Repositórios, 1/\faCodeBranch/Branches, 2/\faCodeBranch/Merge Requests, 3/\faSearch/Revisão de código,
+                         4/\faUserShield/Permissões, 5/\faTasks/Issues, 6/\faCogs/CI/CD e pipelines, 7/\faTag/Releases}{
+    \pgfmathtruncatemacro{\c}{mod(\i,4)}\pgfmathtruncatemacro{\r}{\i/4}
+    \node[f] at (\c*3.45, -\r*1.55) {{\color{verdeMB}\large\ic}\\[1pt] \t};
+  }
+  \node[f, draw=ouroMB, fill=ouroClaro, minimum width=13.45cm] at (5.175,-3.1) {{\color{azulMB}\faClipboardCheck}\; Auditoria, segurança e colaboração entre equipes};
+\end{tikzpicture}
+\end{frame}
+
+\begin{frame}{GitLab Self-Managed: os dados ficam em casa}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}
+  \node[draw=azulMB, line width=1.2pt, rounded corners=6pt, minimum width=6.4cm, minimum height=4.6cm,
+        fill=azulClaro] (om) at (0,0) {};
+  \node[rotulo, anchor=north west] at ([xshift=2mm,yshift=-2mm]om.north west) {\faBuilding\; Infraestrutura da instituição};
+  \node[caixa=verdeMB, minimum width=2.4cm] (srv) at (0,0.2) {\includegraphics[height=6mm]{\imagens/gitlab-tanuki.pdf}\\GitLab};
+  \node[caixa, minimum width=1.6cm, font=\scriptsize] (u1) at (-2,-1.5) {\faUser\\equipe};
+  \node[caixa, minimum width=1.6cm, font=\scriptsize] (u2) at (2,-1.5) {\faServer\\backups};
+  \draw[setafina,<->] (u1) -- (srv); \draw[setafina,<->] (u2) -- (srv);
+  \node[font=\scriptsize\color{vermelhoAlerta}, align=center] at (4.1,1.4) {\faCloud\\internet\\externa};
+  \draw[vermelhoAlerta, line width=1.2pt, dashed] (3.15,0.2) -- (3.15,2.2);
+\end{tikzpicture}
+\column{0.46\textwidth}
+{\small A instituição instala e administra \textbf{a própria instância}. Ganha controle sobre:}
+\begin{itemize}\footnotesize
+  \item código-fonte e histórico;
+  \item usuários, permissões e autenticação;
+  \item auditoria e políticas de segurança.
+\end{itemize}
+\destaque[vermelhoAlerta]{\faExclamationTriangle\; \textbf{Estar dentro de casa não é estar seguro.} Segurança continua dependendo de configuração, atualização, backup, firewall, monitoramento e controle de acesso.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Branch: uma linha de desenvolvimento}
+\begin{columns}[c]
+\column{0.6\textwidth}
+\begin{tikzpicture}[scale=0.8]
+  \node[commit] (a) at (0,0) {};  \node[commit] (b) at (1.3,0) {};
+  \node[commit] (c) at (2.6,0) {}; \node[commit] (d) at (3.9,0) {}; \node[commit] (e) at (6.5,0) {};
+  \draw[hist] (a)--(b)--(c)--(d)--(e);
+  \node[commit=verdeMB] (f1) at (2.6,1.3) {}; \node[commit=verdeMB] (f2) at (3.9,1.3) {}; \node[commit=verdeMB] (f3) at (5.2,1.3) {};
+  \draw[hist=verdeMB] (b) to[out=0,in=180] (f1); \draw[hist=verdeMB] (f1)--(f2)--(f3);
+  \draw[hist=verdeMB, dashed] (f3) to[out=0,in=180] (e);
+  \node[commit=ouroMB!85!black] (g1) at (3.9,-1.3) {}; \node[commit=ouroMB!85!black] (g2) at (5.2,-1.3) {};
+  \draw[hist=ouroMB!85!black] (c) to[out=0,in=180] (g1); \draw[hist=ouroMB!85!black] (g1)--(g2);
+  \node[rotulo, anchor=west] at ([xshift=2mm]e.east) {main};
+  \node[rotulo=verdeMB, anchor=west] at ([xshift=2mm]f3.east) {feature/login};
+  \node[rotulo=ouroMB!85!black, anchor=west] at ([xshift=2mm]g2.east) {bugfix/autenticacao};
+\end{tikzpicture}
+\column{0.36\textwidth}
+\begin{itemize}\small
+  \item Trabalho \textbf{isolado}, sem mexer na \texttt{main}.
+  \item Várias pessoas \textbf{em paralelo}.
+  \item Espaço para \textbf{experimentar} e corrigir.
+  \item Revisão \textbf{antes} de integrar.
+\end{itemize}
+\vspace{2mm}
+\destaque{Branch \textbf{não} é uma cópia do projeto: é um \alert{ponteiro} para uma linha do histórico.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Merge Request: pedir para integrar}
+\centering
+\begin{tikzpicture}[passo/.style={caixa, minimum width=2.05cm, minimum height=1.25cm, font=\scriptsize}]
+  \node[rotulo=verdeMB, font=\small\bfseries] (src) at (0,1.9) {feature/login};
+  \node[rotulo, font=\small\bfseries] (dst) at (12.6,1.9) {main};
+  \draw[seta, line width=2pt] (src) -- node[above, font=\small\bfseries\color{azulMB}] {Merge Request} (dst);
+  \foreach \i/\ic/\t/\cor in {0/\faEye/Visualizar/azulMB, 1/\faCommentDots/Comentar/azulMB, 2/\faRedo/Pedir ajustes/azulMB, 3/\faVial/Testar (CI)/azulMB, 4/\faThumbsUp/Aprovar/azulMB, 5/\faCodeBranch/Merge/verdeMB}{
+    \node[passo=\cor] (p\i) at (\i*2.52,0) {{\large\ic}\\[2pt]\t};
+  }
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,4}{\draw[setafina] (p\i) -- (p\j);}
+\end{tikzpicture}\\[6mm]
+{\footnotesize\textbf{\color{azulMB}Commit}\, registra uma alteração \quad\textcolor{ouroMB}{\faChevronRight}\quad
+\textbf{\color{verdeMB}Branch}\, cria uma linha de trabalho \quad\textcolor{ouroMB}{\faChevronRight}\quad
+\textbf{\color{azulMB}MR}\, pede a integração}
+\end{frame}
+
+\begin{frame}[fragile]{Os comandos do dia a dia}
+\footnotesize
+\renewcommand{\arraystretch}{1.28}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily\color{azulMB}}l X@{}}
+\toprule
+\multicolumn{2}{@{}l}{\bfseries\color{verdeMB}Começar e registrar}\\
+git clone & copiar um repositório remoto \\
+git init & criar um repositório local \\
+git status & ver o estado atual \\
+git add & preparar alterações \\
+git commit & registrar no histórico \\
+git log & consultar o histórico \\
+git diff & comparar alterações \\
+git restore & desfazer mudanças num arquivo \\
+\bottomrule
+\end{tabularx}
+\column{0.48\textwidth}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily\color{azulMB}}l X@{}}
+\toprule
+\multicolumn{2}{@{}l}{\bfseries\color{verdeMB}Branches e remoto}\\
+git branch & listar ou criar branches \\
+git switch & trocar de branch \\
+git merge & unir históricos \\
+git remote & gerenciar remotos \\
+git fetch & baixar do remoto, sem mesclar \\
+git pull & baixar \textit{e} mesclar \\
+git push & enviar para o remoto \\
+\bottomrule
+\end{tabularx}
+\end{columns}
+\end{frame}
+
+\begin{frame}{O fluxo básico de trabalho em equipe}
+\centering
+\begin{tikzpicture}[p/.style={caixa, minimum width=1.5cm, text width=1.3cm, minimum height=1.15cm, font=\scriptsize, inner sep=3pt}]
+  \foreach \i/\t/\c in {0/{\ttfamily git\\pull}/azulMB, 1/Alterar\\código/azulMB, 2/{\ttfamily git\\status}/azulMB, 3/{\ttfamily git\\add}/azulMB,
+                        4/{\ttfamily git\\commit}/azulMB, 5/{\ttfamily git\\push}/azulMB, 6/Merge\\Request/verdeMB, 7/Revisão\\e merge/verdeMB}{
+    \node[p=\c] (n\i) at (\i*1.85,0) {\t};
+  }
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,6}{\draw[setafina] (n\i) -- (n\j);}
+  \draw[decorate, decoration={brace, amplitude=6pt, mirror}, azulMedio, thick] (-0.75,-0.8) -- (9.99,-0.8)
+    node[midway, below=8pt, font=\scriptsize\color{azulMB}] {no seu computador (Git)};
+  \draw[decorate, decoration={brace, amplitude=6pt, mirror}, verdeMB, thick] (10.35,-0.8) -- (13.7,-0.8)
+    node[midway, below=8pt, font=\scriptsize\color{verdeMB}] {no GitLab};
+\end{tikzpicture}\\[8mm]
+\destaque[verdeMB]{\faLightbulb\; Regra de ouro: \textbf{comece sempre com \texttt{git pull}} e trabalhe numa branch própria. Quanto mais tempo longe da \texttt{main}, maior a chance de conflito.}
+\end{frame}
+
+\begin{frame}[fragile]{Conflito: quando o Git pede uma decisão humana}
+\begin{columns}[T]
+\column{0.44\textwidth}
+{\small Duas branches mudaram \textbf{a mesma linha}:}\\[2mm]
+\begin{tikzpicture}
+  \node[caixa=verdeMB, font=\ttfamily\footnotesize] (a) at (0,0) {nome = "João"};
+  \node[caixa=ouroMB!85!black, font=\ttfamily\footnotesize] (b) at (3.4,0) {nome = "Maria"};
+  \node[font=\scriptsize\bfseries\color{verdeMB}, above=1mm of a] {branch A};
+  \node[font=\scriptsize\bfseries\color{ouroMB!80!black}, above=1mm of b] {branch B};
+  \node[caixa=vermelhoAlerta, font=\footnotesize] (c) at (1.7,-1.6) {\faQuestionCircle\; qual fica?};
+  \draw[setafina] (a) -- (c); \draw[setafina] (b) -- (c);
+\end{tikzpicture}\\[3mm]
+\destaque{Conflito \textbf{não é erro}. É o Git dizendo: \enquote{não sei combinar isso sozinho, decida você}.}
+\column{0.52\textwidth}
+{\small O Git marca o arquivo assim:}
+\begin{lstlisting}[style=saida]
+<<<<<<< HEAD
+nome = "João"
+=======
+nome = "Maria"
+>>>>>>> branch-b
+\end{lstlisting}
+\begin{enumerate}\footnotesize
+  \item edite e deixe só o que deve ficar;
+  \item apague os marcadores \texttt{<<<}, \texttt{===}, \texttt{>>>};
+  \item \cmd{git add arquivo} e \cmd{git commit}.
+\end{enumerate}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{GitLab CLI: o GitLab pelo terminal}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize\color{cinzaTexto}]
+# autenticar (uma vez)
+glab auth login --hostname <endereco-do-gitlab>
+
+# criar um Merge Request da branch atual
+glab mr create --target-branch main \
+  --title "Integra o sistema"
+
+# acompanhar
+glab mr list
+glab mr view
+glab ci status
+\end{lstlisting}
+\column{0.44\textwidth}
+\begin{tikzpicture}[l/.style={font=\small, anchor=west}]
+  \node[l] at (0,1.6) {\textbf{\color{azulMB}Git}\hspace{11mm} controle de versão};
+  \node[l] at (0,0.8) {\textbf{\color{azulMB}GitLab}\hspace{5mm} plataforma de colaboração};
+  \node[l] at (0,0) {\textbf{\color{azulMB}glab}\hspace{9.5mm} o GitLab no terminal};
+\end{tikzpicture}\\[4mm]
+\destaque{As \textbf{regras de permissão} do GitLab valem também no terminal: se a \texttt{main} exige aprovação, o \texttt{glab} não pula essa etapa.}
+\end{columns}
+\end{frame}
+
+% =============================================================================
+\secao{02}{Problema 1}{Um sistema já versionado localmente precisa entrar no GitLab institucional, onde a \texttt{main} já existe e está protegida}
+% =============================================================================
+
+\begin{frame}{O cenário na instituição}
+\begin{columns}[c]
+\column{0.5\textwidth}
+{\small Ao criar um repositório, o GitLab institucional \textbf{já entrega}:}
+\begin{itemize}\small
+  \item uma branch \texttt{main} criada;
+  \item um \texttt{README.md} padrão;
+  \item a \texttt{main} \alert{protegida}: nada de \texttt{push} direto;
+  \item mudanças só por \alert{Merge Request}.
+\end{itemize}
+\vspace{2mm}
+{\small Mas o sistema \textbf{já existia} no computador, com anos de histórico Git próprio.}
+\column{0.46\textwidth}
+\centering
+\begin{tikzpicture}
+  \node[caixa, minimum width=5.4cm, minimum height=2.2cm, fill=azulClaro] (r) at (0,0) {};
+  \node[anchor=north west, font=\scriptsize\bfseries\color{azulMB}] at (r.north west) {\includegraphics[height=3.5mm]{\imagens/gitlab-tanuki.pdf}\; repositório institucional};
+  \node[rotulo] (m) at (-1.3,-0.2) {\faLock\; main};
+  \node[caixa=ouroMB!85!black, font=\scriptsize\ttfamily] at (1.2,-0.2) {README.md};
+  \node[font=\scriptsize\color{vermelhoAlerta}, below=7mm of r] (x) {\faBan\; \texttt{git push origin main} \enspace recusado};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{O problema: dois históricos que não se conhecem}
+\begin{columns}[c]
+\column{0.56\textwidth}
+\begin{tikzpicture}
+  \node[font=\scriptsize\bfseries\color{verdeMB}, anchor=west] at (-0.4,1.05) {REPOSITÓRIO LOCAL (anos de trabalho)};
+  \foreach \l/\x in {A/0,B/1.3,C/2.6,D/3.9}{\node[commit=verdeMB] (\l) at (\x,0.35) {\l};}
+  \draw[hist=verdeMB] (A)--(B)--(C)--(D);
+  \node[font=\scriptsize\bfseries\color{azulMB}, anchor=west] at (-0.4,-0.85) {REPOSITÓRIO GITLAB (recém-criado)};
+  \foreach \l/\x in {X/0,Y/1.3}{\node[commit] (\l) at (\x,-1.55) {\l};}
+  \draw[hist] (X)--(Y);
+  \node[font=\large\color{vermelhoAlerta}] at (2.8,-1.55) {\faUnlink};
+  \node[font=\scriptsize, text width=2.6cm, align=left, anchor=west] at (3.3,-1.55) {nenhum ancestral em comum};
+\end{tikzpicture}
+\column{0.4\textwidth}
+{\small Um \texttt{git merge} comum simplesmente recusa:}
+\begin{lstlisting}[style=saida]
+$ git merge origin/main
+fatal: refusing to merge
+unrelated histories
+\end{lstlisting}
+\destaque{O Git só sabe mesclar linhas que \textbf{nasceram de um mesmo ponto}. Aqui, não há esse ponto.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{O objetivo: um histórico só, sem perder nada}
+\centering
+\begin{tikzpicture}
+  \foreach \l/\x in {A/0,B/1.6,C/3.2,D/4.8}{\node[commit=verdeMB] (\l) at (\x,1) {\l};}
+  \draw[hist=verdeMB] (A)--(B)--(C)--(D);
+  \foreach \l/\x in {X/0,Y/2.4}{\node[commit] (\l) at (\x,-1) {\l};}
+  \draw[hist] (X)--(Y);
+  \node[commitm] (M) at (6.8,0) {M};
+  \draw[hist=verdeMB] (D) to[out=0,in=135] (M);
+  \draw[hist] (Y) to[out=0,in=-135] (M);
+  \node[rotulo=verdeMB, anchor=west] at ([xshift=4mm]M.east) {desenvolvimento};
+  \node[font=\scriptsize\color{verdeMB}, anchor=east] at ([xshift=-3mm]A.west) {histórico do sistema};
+  \node[font=\scriptsize\color{azulMB}, anchor=east] at ([xshift=-3mm]X.west) {histórico institucional};
+  \node[font=\scriptsize, align=center, below=4mm of M] {commit de merge\\une os dois};
+\end{tikzpicture}\\[6mm]
+\destaque[verdeMB]{Depois do commit \textbf{M}, os dois históricos passam a ter ancestral comum. A partir daí um Merge Request para a \texttt{main} flui \textbf{sem conflito}.}
+\end{frame}
+
+\begin{frame}[fragile]{Passos 1 a 3: conectar, baixar e renomear}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\begin{lstlisting}
+# 1. dar ao Git local um endereço remoto
+git remote add origin <URL_DO_REPOSITORIO>
+git remote -v
+
+# 2. baixar o que existe no GitLab
+#    (sem mesclar nada ainda)
+git fetch origin
+
+# 3. tirar a main local do caminho
+git branch -m main desenvolvimento
+\end{lstlisting}
+\column{0.41\textwidth}
+\begin{tikzpicture}[l/.style={font=\scriptsize, anchor=west, text width=5cm}]
+  \node[rotulo=verdeMB] (d) at (0,0) {desenvolvimento};
+  \node[l] at (1.9,0) {seu histórico (A–D), \\ com novo nome};
+  \node[rotulo] (o) at (0,-1.2) {origin/main};
+  \node[l] at (1.9,-1.2) {cópia de leitura da \\ \texttt{main} institucional};
+\end{tikzpicture}\\[5mm]
+\destaque{Renomear evita confundir a sua \texttt{main} com a \texttt{main} \textbf{protegida} do GitLab.}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Passo 4: autorizar a união dos históricos}
+\begin{lstlisting}
+git merge --allow-unrelated-histories origin/main
+\end{lstlisting}
+\vspace{2mm}
+\begin{columns}[T]
+\column{0.47\textwidth}
+\begin{tikzpicture}\node[caixa=vermelhoAlerta, text width=5.9cm, align=left, font=\small]{%
+  {\bfseries\color{vermelhoAlerta}\faTimes\; NÃO significa}\\[2pt]
+  \enquote{ignore todos os conflitos}.};\end{tikzpicture}
+\column{0.47\textwidth}
+\begin{tikzpicture}\node[caixa=verdeMB, text width=5.9cm, align=left, font=\small]{%
+  {\bfseries\color{verdeMB}\faCheck\; Significa}\\[2pt]
+  \enquote{eu sei que não há ancestral comum e autorizo o Git a tentar juntar}.};\end{tikzpicture}
+\end{columns}
+\vspace{4mm}
+{\small Resultado típico: os dois lados têm um \texttt{README.md} diferente.}
+\begin{lstlisting}[style=saida]
+CONFLITO (adicionar/adicionar): conflito de mesclagem em README.md
+Automatic merge failed; fix conflicts and then commit the result.
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Passo 5: \texttt{ours} e \texttt{theirs} — o ponto que mais causa erro}
+\begin{columns}[c]
+\column{0.5\textwidth}
+\centering
+\begin{tikzpicture}
+  \node[commitm, minimum size=12mm, font=\bfseries\color{azulMB}] (m) at (0,0) {merge};
+  \node[caixa=verdeMB, text width=2.7cm] (o) at (-1.9,-2) {\textbf{OURS}\\ \scriptsize a branch em que \textbf{você está}\\ (\texttt{desenvolvimento})};
+  \node[caixa, text width=2.7cm] (t) at (1.9,-2) {\textbf{THEIRS}\\ \scriptsize a branch que \textbf{está chegando}\\ (\texttt{origin/main})};
+  \draw[setafina] (m) -- (o); \draw[setafina] (m) -- (t);
+\end{tikzpicture}
+\column{0.46\textwidth}
+\begin{lstlisting}
+# manter o README do sistema
+git restore --ours README.md
+# forma antiga equivalente
+git checkout --ours README.md
+
+# manter o README institucional
+git restore --theirs README.md
+\end{lstlisting}
+\end{columns}
+\vspace{3mm}
+\destaque[vermelhoAlerta]{\faExclamationTriangle\; \texttt{ours} \textbf{não} quer dizer \enquote{o arquivo do meu computador}. Quer dizer \textbf{o lado da branch atual naquele merge}. Confunda isso e você preserva o arquivo errado.}
+\end{frame}
+
+\begin{frame}[fragile]{Passos 6 e 7: registrar e publicar}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{lstlisting}
+# 6. marcar o conflito como resolvido
+git add README.md
+git commit   # grava o M
+
+# 7. enviar a nova branch ao GitLab
+git push origin desenvolvimento
+\end{lstlisting}
+\column{0.46\textwidth}
+{\small No GitLab passam a existir, lado a lado:}\\[3mm]
+\begin{tikzpicture}[l/.style={font=\scriptsize, anchor=west}]
+  \node[rotulo] at (0,0) {\faLock\; main}; \node[l] at (1.3,0) {intocada e protegida};
+  \node[rotulo=verdeMB] at (0.45,-0.8) {desenvolvimento}; \node[l] at (1.9,-0.8) {sistema + histórico integrado};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Passo 8: o Merge Request fecha o ciclo}
+\begin{columns}[c]
+\column{0.5\textwidth}
+\centering
+\begin{tikzpicture}
+  \node[rotulo=verdeMB, font=\small\bfseries] (d) at (0,1.2) {desenvolvimento};
+  \node[rotulo, font=\small\bfseries] (m) at (0,-1.2) {\faLock\; main};
+  \draw[seta, line width=2pt] (d) -- node[right=2mm, font=\small, align=left] {Merge Request\\[-1pt]\scriptsize revisão + aprovação} (m);
+\end{tikzpicture}
+\column{0.46\textwidth}
+\begin{itemize}\small
+  \item Feito na \textbf{interface web} do GitLab, com aprovação de quem tem permissão.
+  \item Ou pelo terminal, com o \texttt{glab}:
+\end{itemize}
+\begin{lstlisting}
+glab mr create -s desenvolvimento -b main
+\end{lstlisting}
+\end{columns}
+\vspace{3mm}
+\destaque[verdeMB]{Como os históricos agora são relacionados, o merge \textbf{não é recusado}: todos os conflitos já foram tratados localmente.}
+\end{frame}
+
+\begin{frame}[fragile]{Resumo do Problema 1 em oito linhas}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize\color{cinzaTexto}]
+git remote add origin <URL_DO_REPOSITORIO>           # 1. conectar
+git fetch origin                                      # 2. baixar
+git branch -m main desenvolvimento                    # 3. renomear
+git merge --allow-unrelated-histories origin/main     # 4. unir
+git restore --ours README.md                          # 5. decidir o conflito
+git add README.md && git commit                       # 6. registrar
+git push origin desenvolvimento                       # 7. publicar
+glab mr create -s desenvolvimento -b main             # 8. pedir a integração
+\end{lstlisting}
+\vspace{2mm}
+\destaque{\faBook\; A apostila traz este mesmo caso para você \textbf{reproduzir no seu computador}, sem precisar de servidor.}
+\end{frame}
+
+% =============================================================================
+\secao{03}{Problema 2}{Os sistemas agora estão versionados. Mas quase nenhum tinha documentação}
+% =============================================================================
+
+\begin{frame}{Versionado não é documentado}
+\centering
+\begin{tikzpicture}[p/.style={caixa, minimum width=2.1cm, text width=1.9cm, minimum height=1.15cm, font=\scriptsize}]
+  \foreach \i/\t/\c in {0/Código\\existente/azulMB, 1/Pouca\\documentação/azulMB, 2/Conhecimento\\concentrado/azulMB,
+                        3/Manutenção\\difícil/ouroMB!85!black, 4/Evolução\\difícil/ouroMB!85!black, 5/Risco\\operacional/vermelhoAlerta}{
+    \node[p=\c] (n\i) at (\i*2.4,0) {\t};
+  }
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,4}{\draw[setafina] (n\i) -- (n\j);}
+\end{tikzpicture}\\[7mm]
+\begin{columns}[T]
+\column{0.46\textwidth}
+\begin{itemize}\footnotesize
+  \item documentação ausente ou desatualizada;
+  \item regras de negócio só na cabeça de alguém;
+  \item dependências e configurações desconhecidas.
+\end{itemize}
+\column{0.46\textwidth}
+\destaque{A solução adotada: um \textbf{agente de IA} (Claude Code) para acelerar o entendimento, a refatoração e a documentação profunda.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{IA: ferramenta de engenharia, não autoridade}
+\centering
+\begin{tikzpicture}[c/.style={caixa, minimum width=3.4cm, minimum height=2.7cm, align=left, font=\footnotesize, anchor=north}]
+  \node[c] (e1) at (0,0) {{\bfseries\color{azulMB}\faUserTie\; Engenheiro}\\[3pt] • define o objetivo\\ • define restrições\\ • orienta o agente};
+  \node[c=ouroMB!85!black] (ia) at (4.6,0) {{\bfseries\color{azulMB}\includegraphics[height=3mm]{\imagens/claude-simbolo.pdf}\; Agente de IA}\\[3pt] • analisa\\ • sugere\\ • documenta\\ • executa o autorizado};
+  \node[c=verdeMB] (e2) at (9.2,0) {{\bfseries\color{azulMB}\faUserCheck\; Engenheiro}\\[3pt] • revisa\\ • valida no sistema real\\ • decide};
+  \draw[seta] (e1.east|-0,-1.35) -- (ia.west|-0,-1.35);
+  \draw[seta] (ia.east|-0,-1.35) -- (e2.west|-0,-1.35);
+\end{tikzpicture}\\[5mm]
+\destaque[vermelhoAlerta]{A IA pode interpretar errado regras de negócio, intenções e comportamentos implícitos. \textbf{Toda documentação gerada por IA é validada contra o sistema real.} A decisão final é sempre humana.}
+\end{frame}
+
+\begin{frame}{Como o prompt evoluiu (dados reais)}
+\begin{columns}[c]
+\column{0.56\textwidth}
+\begin{tikzpicture}
+\begin{axis}[
+  xbar, width=8.4cm, height=5.6cm, bar width=9pt,
+  xmode=log, log basis x=10, xmin=100, xmax=250000,
+  xlabel={\scriptsize tamanho do prompt (caracteres, escala log)},
+  symbolic y coords={V4,V3,V2,V1,V0}, ytick=data, y dir=normal,
+  yticklabels={{\bfseries V4 · 15/09},{V3 · 14/09},{V2 · 10/08},{V1 · 16/07},{V0 · 13/07}},
+  yticklabel style={font=\scriptsize\color{azulMB}},
+  xticklabel style={font=\tiny\color{azulMedio}},
+  axis x line*=bottom, axis y line*=left, x axis line style={azulMedio!40}, y axis line style={draw=none},
+  xmajorgrids, grid style={azulMedio!15}, major tick style={draw=none},
+  nodes near coords, nodes near coords style={font=\scriptsize\color{cinzaTexto}, anchor=west},
+  point meta=explicit symbolic, enlarge y limits=0.14]
+  \addplot[fill=azulMB, draw=none] coordinates {
+    (37883,V4) [37.883] (61556,V3) [61.556] (4551,V2) [4.551] (944,V1) [231–944] (953,V0) [953]};
+\end{axis}
+\end{tikzpicture}
+\column{0.4\textwidth}
+\footnotesize
+\begin{description}[V0]
+\item[\color{azulMB}V0] pipeline em PT: \enquote{não modifique}, descubra antes.
+\item[\color{azulMB}V1] pedidos curtos em PT, crescendo a cada reuso.
+\item[\color{azulMB}V2] lista estruturada em PT: 47 itens.
+\item[\color{azulMB}V3] protocolo em inglês, fase \emph{read-only}.
+\item[\color{verdeMB}V4] prompt final em inglês, 42 seções, \textbf{saída obrigatória em PT-BR}.
+\end{description}
+\end{columns}
+\vfill
+{\tiny\color{azulMedio} Fonte: histórico de prompts do Claude Code do autor, 10/07 a 28/09/2026 — 717 prompts em 123 sessões. V1 mostra a faixa observada; o 1º pedido livre tinha 231 caracteres.}
+\end{frame}
+
+\begin{frame}{Cada falha virou uma regra}
+\footnotesize
+\renewcommand{\arraystretch}{1.9}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode\color{vermelhoAlerta}}X c >{\raggedright\arraybackslash\leavevmode\color{verdeMB}\bfseries}X@{}}
+\toprule
+\textbf{\color{azulMB}O que deu errado} & & \textbf{\color{azulMB}A regra que entrou no prompt} \\
+\midrule
+Documentação superficial, pedida de novo & \faLongArrowAltRight & Análise em fases, arquivo a arquivo \\
+Agente preenchia lacunas sozinho & \faLongArrowAltRight & Registrar como \texttt{GAP}; nunca inventar \\
+Risco de alterar código na análise & \faLongArrowAltRight & Fase 0 somente leitura (\emph{read-only}) \\
+Prompt em inglês, resposta em inglês & \faLongArrowAltRight & Exigência global: tudo em PT-BR \\
+Agente seguia em frente diante de risco & \faLongArrowAltRight & Protocolo \emph{Safe Stop-and-Report} \\
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+\begin{frame}{O que melhorou, em números}
+\begin{columns}[c]
+\column{0.3\textwidth}
+\centering
+{\titulofonte\fontsize{54}{54}\selectfont\color{vermelhoAlerta}\raisebox{0pt}{\textasciitilde}53\%}\\
+{\footnotesize das tarefas de documentação precisaram de \textbf{retrabalho}\\ com prompts livres (V1, V2)\\ \color{azulMedio}8 de 15 tarefas}
+\column{0.06\textwidth}
+\centering{\Huge\color{ouroMB}\faLongArrowAltRight}
+\column{0.3\textwidth}
+\centering
+{\titulofonte\fontsize{54}{54}\selectfont\color{verdeMB}\textasciitilde25\%}\\
+{\footnotesize com prompts estruturados\\ com contrato de execução (V0, V3, V4)\\ \color{azulMedio}1 de 4 tarefas}
+\column{0.3\textwidth}
+\destaque{\footnotesize\textbf{Leia com cautela:} estimativa com amostra pequena. \enquote{Retrabalho} = refazer, reenviar, \enquote{continue de onde parou}, idioma errado. Parte das paradas veio de limite de uso, não do prompt.}
+\end{columns}
+\vspace{5mm}
+\centering
+\begin{tikzpicture}[s/.style={font=\scriptsize, text width=3.8cm, align=center}]
+  \node[s] at (0,0) {\textbf{\color{azulMB}164×}\\ crescimento do prompt, do 1º pedido livre ao final};
+  \node[s] at (4.4,0) {\textbf{\color{azulMB}5 regras}\\ nasceram de 5 falhas observadas};
+  \node[s] at (8.8,0) {\textbf{\color{azulMB}0}\\ pedidos para refazer a doc após o V4 (1 uso)};
+\end{tikzpicture}
+\end{frame}
+
+\begin{frame}{O método: documentação em fases}
+\centering
+\begin{tikzpicture}[f/.style={caixa, minimum width=1.85cm, minimum height=1.55cm, font=\scriptsize, text width=1.7cm}]
+  \foreach \i/\n/\t/\c in {0/0/Descoberta somente leitura/verdeMB, 1/1/Mapa do sistema/azulMB, 2/2/Análise profunda/azulMB,
+                           3/3/Modelo de conhecimento/azulMB, 4/4/Validação do entendimento/ouroMB!85!black, 5/5/Documentação técnica/azulMB, 6/6+/Auditoria e evolução/azulMB}{
+    \node[f=\c] (f\i) at (\i*2.1,0) {{\titulofonte\Large FASE \n}\\[1pt]\t};
+  }
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,5}{\draw[setafina] (f\i) -- (f\j);}
+\end{tikzpicture}\\[6mm]
+\destaque{Evita a cascata: \emph{entendimento errado} \faLongArrowAltRight\ \emph{documentação errada} \faLongArrowAltRight\ \emph{recomendação errada} \faLongArrowAltRight\ \emph{projeto futuro errado}.\\[2pt]
+Em vez disso: \textbf{descobrir \faLongArrowAltRight\ evidenciar \faLongArrowAltRight\ modelar \faLongArrowAltRight\ validar \faLongArrowAltRight\ documentar \faLongArrowAltRight\ auditar \faLongArrowAltRight\ evoluir}.}
+\end{frame}
+
+\begin{frame}{As três travas de segurança do prompt}
+\begin{columns}[T]
+\column{0.31\textwidth}
+\begin{tikzpicture}\node[caixa=verdeMB, text width=3.9cm, minimum height=5.1cm, align=left, font=\footnotesize, anchor=north]{%
+{\bfseries\color{verdeMB}\large\faEye}\\[2pt]{\bfseries READ-ONLY\\DISCOVERY}\\[4pt]
+Na descoberta, o agente \textbf{não} altera código, não apaga, não renomeia, não mexe em configuração nem faz commit.\\[4pt]
+\textit{Descobrir antes de modificar.}};\end{tikzpicture}
+\column{0.31\textwidth}
+\begin{tikzpicture}\node[caixa=ouroMB!85!black, text width=3.9cm, minimum height=5.1cm, align=left, font=\footnotesize, anchor=north]{%
+{\bfseries\color{ouroMB!80!black}\large\faBalanceScale}\\[2pt]{\bfseries NUNCA\\INVENTAR}\\[4pt]
+Todo fato precisa de evidência. O que não se confirma recebe rótulo:\\[2pt]
+{\scriptsize\ttfamily DESCONHECIDO · NÃO VERIFICADO · INFERIDO · REQUER VALIDAÇÃO}\\[4pt]
+E separa \textbf{AS-IS}, \textbf{TO-BE} e \textbf{GAP}.};\end{tikzpicture}
+\column{0.31\textwidth}
+\begin{tikzpicture}\node[caixa=vermelhoAlerta, text width=3.9cm, minimum height=5.1cm, align=left, font=\footnotesize, anchor=north]{%
+{\bfseries\color{vermelhoAlerta}\large\faHandPaper}\\[2pt]{\bfseries SAFE\\STOP-AND-REPORT}\\[4pt]
+Diante de dúvida, contradição, risco ou falta de autorização:\\[2pt]
+\textbf{PARAR \faLongArrowAltRight\ REPORTAR \faLongArrowAltRight\ AGUARDAR} a decisão humana.\\[4pt]
+Gravidade de STOP-P0 (crítico) a STOP-P3.};\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Prompt em inglês, documentação em português}
+\begin{columns}[c]
+\column{0.5\textwidth}
+\centering
+\begin{tikzpicture}[p/.style={caixa, minimum width=5.2cm, font=\small}]
+  \node[p] (a) at (0,0) {Prompt de instrução \textbf{em inglês}};
+  \node[p=ouroMB!85!black] (b) at (0,-1.3) {Agente executa a análise};
+  \node[p=verdeMB] (c) at (0,-2.6) {Documentação \textbf{em PT-BR}};
+  \draw[setafina] (a) -- (b); \draw[setafina] (b) -- (c);
+\end{tikzpicture}
+\column{0.46\textwidth}
+\begin{itemize}\small
+  \item Idioma do prompt \(\neq\) idioma do resultado.
+  \item O V3, só em inglês, fez o agente \textbf{responder em inglês}.
+  \item No dia seguinte, o V4 ganhou a regra:
+\end{itemize}
+{\footnotesize\ttfamily\color{azulMB} ALL CONTENT YOU PRODUCE MUST BE WRITTEN IN BRAZILIAN PORTUGUESE.}\\[3mm]
+{\scriptsize\color{azulMedio} A economia de tokens com o inglês é a motivação adotada; ela não foi medida no histórico.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{O que o prompt pede e o que ele entrega}
+\begin{columns}[T]
+\column{0.48\textwidth}
+{\small\bfseries\color{azulMB} Seis perguntas que guiam o agente}\\[1mm]
+\footnotesize
+\begin{tabular}{@{}>{\bfseries\color{verdeMB}}l l@{}}
+Descoberta & O que existe neste sistema? \\
+Compreensão & Como as partes se relacionam? \\
+Funcionamento & Como o sistema funciona? \\
+Auditoria & Quais os riscos e pontos fracos? \\
+Documentação & Como virar conhecimento útil? \\
+Validação & Isso bate com o sistema real? \\
+\end{tabular}\\[4mm]
+\destaque[verdeMB]{\footnotesize De \enquote{código que poucas pessoas conhecem} para \enquote{sistema que outras pessoas entendem e mantêm}.}
+\column{0.48\textwidth}
+{\small\bfseries\color{azulMB} Exemplo do que sai em \texttt{docs/}}\\[1mm]
+\begin{tikzpicture}[f/.style={font=\scriptsize\ttfamily, anchor=west, inner sep=1.5pt}]
+  \node[f, font=\scriptsize\ttfamily\bfseries] at (0,0) {docs/};
+  \foreach \t [count=\y] in {{00-discovery/DISCOVERY.md}, {00-discovery/SYSTEM\_MAP.md}, architecture.md, business-rules.md,
+                     database.md · api.md, security.md, known-issues.md, technical-debt.md, guia para leigos}{
+    \node[f] at (0.35,-\y*0.36) {\color{azulMedio}├─\color{cinzaTexto} \t};
+  }
+  \node[f] at (0,-3.6) {README.md \color{azulMedio}(raiz, profissional)};
+\end{tikzpicture}\\[1mm]
+{\scriptsize\color{azulMedio} A estrutura exata se adapta a cada sistema.}
+\end{columns}
+\end{frame}
+
+% =============================================================================
+\secao{04}{Encerramento}{A visão geral e a mensagem final}
+% =============================================================================
+
+\begin{frame}{A visão geral}
+\centering
+\begin{tikzpicture}[p/.style={caixa, minimum width=3.2cm, font=\small}]
+  \node[p, fill=azulMB, text=white, font=\small\bfseries] (s) at (0,0) {SISTEMA};
+  \node[p=verdeMB] (v) at (-3.6,-1.3) {\textbf{Versionamento}};
+  \node[p=ouroMB!85!black] (k) at (3.6,-1.3) {\textbf{Conhecimento}};
+  \node[p=verdeMB] (g) at (-3.6,-2.5) {Git + GitLab};
+  \node[p=ouroMB!85!black] (i) at (3.6,-2.5) {IA + validação humana};
+  \node[p=verdeMB] (gg) at (-3.6,-3.7) {Histórico e revisão};
+  \node[p=ouroMB!85!black] (d) at (3.6,-3.7) {Documentação};
+  \node[p, fill=verdeClaro, minimum width=5cm] (f) at (0,-4.9) {\textbf{Manutenção e evolução seguras}};
+  \draw[setafina] (s) -| (v); \draw[setafina] (s) -| (k);
+  \draw[setafina] (v)--(g); \draw[setafina] (g)--(gg); \draw[setafina] (k)--(i); \draw[setafina] (i)--(d);
+  \draw[setafina] (gg) |- (f); \draw[setafina] (d) |- (f);
+\end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Mensagem final}
+\begin{columns}[c]
+\column{0.55\textwidth}
+{\large O conhecimento técnico da equipe \textbf{não pode morar só na cabeça} de quem escreveu o sistema.}\\[5mm]
+\begin{itemize}\small
+  \item O código tem \alert{histórico}.
+  \item O sistema tem \alert{documentação}.
+  \item As alterações têm \alert{revisão}.
+  \item As decisões têm \alert{contexto}.
+\end{itemize}
+\column{0.4\textwidth}
+\destaque{A IA acelera esse trabalho \textbf{dentro de um processo controlado}: objetivo claro, restrições bem definidas e validação humana.}\\[4mm]
+{\titulofonte\Large\color{azulMB} Tornar os sistemas mais fáceis de compreender, manter, compartilhar e evoluir.}
+\end{columns}
+\end{frame}
+
+{\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[azulMB] (current page.south west) rectangle (current page.north east);
+  \node[text=ouroMB, font=\titulofonte\fontsize{72}{72}\selectfont] at ([yshift=14mm]current page.center) {OBRIGADO!};
+  \node[text=white, font=\montlight\Large] at ([yshift=-4mm]current page.center) {Perguntas?};
+  \node[text=white!80!azulMB, font=\small, align=center, text width=11cm] at ([yshift=-20mm]current page.center)
+    {\faBook\; A \textbf{apostila} traz tudo o que vimos com mais calma, o passo a passo para reproduzir o Problema 1 e os \textbf{exercícios práticos}.};
+  \node[anchor=south, inner sep=0pt] at ([yshift=8mm]current page.south)
+    {\marca[white]{24}};
+\end{tikzpicture}
+\end{frame}}
+
+\end{document}

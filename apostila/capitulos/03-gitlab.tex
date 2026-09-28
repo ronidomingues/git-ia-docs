@@ -1,0 +1,129 @@
+\chapter{GitLab: colaboração em volta do Git}
+\label{cap:gitlab}
+
+\begin{conceito}[GitLab]
+O GitLab é uma \textbf{plataforma de desenvolvimento e gerenciamento de software baseada no Git}. Ele hospeda repositórios e acrescenta, num só lugar, o que uma equipe precisa para colaborar: revisão de código, controle de permissões, Merge Requests, Issues, CI/CD, pipelines, releases, segurança e auditoria.
+\end{conceito}
+
+\section{Git, GitLab, GitHub e glab}
+
+Esses nomes confundem porque são parecidos. Mas \textbf{Git e GitLab não são a mesma coisa}:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\small
+\begin{tabularx}{\linewidth}{@{}m{13mm} >{\bfseries\color{azulMB}}m{22mm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+ & & \textbf{O que é} & \textbf{Principal finalidade} \\
+\midrule
+\includegraphics[height=5mm]{\imagens/git-logo.pdf} & Git & Sistema distribuído de controle de versão & Controlar o histórico do código \\
+\includegraphics[height=7mm]{\imagens/gitlab-tanuki.pdf} & GitLab & Plataforma baseada em Git, com opção de instalação na própria infraestrutura & Hospedar, gerenciar e colaborar sobre projetos \\
+\includegraphics[height=6mm]{\imagens/github-mark.pdf} & GitHub & Plataforma baseada em Git, oferecida principalmente como serviço em nuvem & Hospedar, gerenciar e colaborar sobre projetos \\
+\centering\faTerminal & GitLab CLI (\texttt{glab}) & Ferramenta de linha de comando & Interagir com o GitLab pelo terminal \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{analogia}
+O \textbf{Git} é o motor do carro. O \textbf{GitLab} e o \textbf{GitHub} são garagens com oficina, vistoria e controle de quem entra. O \textbf{glab} é o controle remoto do portão da garagem do GitLab.
+\end{analogia}
+
+O Git funciona sozinho, sem GitLab nem GitHub. Os comandos \cmd{git init}, \cmd{git add} e \cmd{git commit} do capítulo anterior não precisaram de servidor nenhum. As plataformas entram quando é preciso compartilhar e revisar.
+
+A diferença entre GitLab e GitHub no dia a dia é pequena: os dois hospedam repositórios Git e permitem revisão. Os nomes mudam um pouco (o GitHub chama o Merge Request de \emph{Pull Request}). A diferença que mais importa para uma instituição é a próxima seção.
+
+\section{GitLab Self-Managed}
+
+O GitLab tem uma modalidade que a organização \textbf{instala e administra na própria infraestrutura}, chamada \termo{GitLab Self-Managed}. A instituição mantém a sua instância nos seus servidores ou em infraestrutura autorizada, sem mandar o código para fora.
+
+\begin{center}
+\begin{tikzpicture}
+  \node[draw=azulMB, line width=1.2pt, rounded corners=6pt, minimum width=8.5cm, minimum height=4.4cm, fill=azulClaro] (om) at (0,0) {};
+  \node[rotulo, anchor=north west] at ([xshift=2mm,yshift=-2mm]om.north west) {\faBuilding\; Infraestrutura da instituição};
+  \node[caixa=verdeMB, minimum width=2.6cm] (srv) at (0,0.2) {\includegraphics[height=7mm]{\imagens/gitlab-tanuki.pdf}\\GitLab};
+  \node[caixa, minimum width=1.8cm, font=\scriptsize] (u1) at (-2.8,-1.3) {\faUsers\\equipe};
+  \node[caixa, minimum width=1.8cm, font=\scriptsize] (u2) at (2.8,-1.3) {\faServer\\backups};
+  \draw[setafina,<->] (u1) -- (srv); \draw[setafina,<->] (u2) -- (srv);
+  \draw[vermelhoAlerta, line width=1.2pt, dashed] (4.6,-2.2) -- (4.6,2.2);
+  \node[font=\small\color{vermelhoAlerta}, align=center] at (6,0) {\faCloud\\internet\\externa};
+\end{tikzpicture}
+\end{center}
+
+Isso dá à instituição mais controle sobre armazenamento dos dados, código-fonte, histórico, usuários, permissões, autenticação, auditoria, políticas de segurança e integração com outros sistemas.
+
+\begin{atencao}[Dentro de casa não é sinônimo de seguro]
+Não interprete Self-Managed como \enquote{se está dentro da instituição, está automaticamente seguro}. A segurança continua dependendo de configuração, controle de acesso, atualização do software, autenticação, política de senhas, backups, firewall, segmentação de rede, monitoramento, auditoria e gestão de vulnerabilidades. O ganho é outro: a instituição \textbf{mantém o ambiente sob a própria administração}.
+\end{atencao}
+
+\section{Branch protegida}
+
+No GitLab, uma branch pode ser \termo{protegida}. Numa branch protegida, ninguém faz \cmd{git push} direto (ou só quem tem permissão), e a única forma de mudar o conteúdo é por \textbf{Merge Request}. É comum a \arq{main} ser protegida, para que nada chegue à versão principal sem revisão.
+
+\section{Merge Request}
+
+\begin{conceito}[Merge Request (MR)]
+É uma \textbf{solicitação para incorporar as alterações de uma branch em outra}, normalmente acompanhada de revisão. No GitHub, o mesmo recurso se chama \emph{Pull Request}.
+\end{conceito}
+
+\begin{center}
+\begin{tikzpicture}[passo/.style={caixa, minimum width=2.1cm, minimum height=1.25cm, font=\scriptsize}]
+  \node[rotulo=verdeMB, font=\small\bfseries] (src) at (0,1.9) {feature/login};
+  \node[rotulo, font=\small\bfseries] (dst) at (12.5,1.9) {main};
+  \draw[seta, line width=2pt] (src) -- node[above, font=\small\bfseries\color{azulMB}] {Merge Request} (dst);
+  \foreach \i/\ic/\t/\cor in {0/\faEye/Visualizar/azulMB, 1/\faCommentDots/Comentar/azulMB, 2/\faRedo/Pedir ajustes/azulMB, 3/\faVial/Testar/azulMB, 4/\faThumbsUp/Aprovar/azulMB, 5/\faCodeBranch/Merge/verdeMB}{
+    \node[passo=\cor] (p\i) at (\i*2.5,0) {{\large\ic}\\[2pt]\t};}
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,4}{\draw[setafina] (p\i) -- (p\j);}
+\end{tikzpicture}
+\end{center}
+
+O fluxo é: a pessoa trabalha numa branch, envia a branch ao GitLab com \cmd{git push} e abre um Merge Request. A equipe então visualiza as alterações, revisa o código, comenta, pede ajustes, roda os testes automáticos (se houver pipeline), aprova e, por fim, faz o merge.
+
+\begin{analogia}[Commit, branch e Merge Request]
+\textbf{Commit} registra uma alteração. \textbf{Branch} cria uma linha de desenvolvimento. \textbf{Merge Request} pede que essa linha seja integrada, como um processo que só segue depois do \enquote{de acordo} de quem tem a competência para aprovar.
+\end{analogia}
+
+\subsection{Abrindo um Merge Request pela interface web}
+
+Os nomes dos botões podem variar um pouco conforme a versão do GitLab instalada:
+
+\begin{enumerate}
+  \item envie a sua branch: \cmd{git push origin minha-branch};
+  \item abra o projeto no GitLab. Logo após o push, ele costuma mostrar um aviso com o botão \textbf{Create merge request};
+  \item se o aviso não aparecer, vá em \textbf{Code \faChevronRight\ Merge requests \faChevronRight\ New merge request} e escolha a branch de origem (a sua) e a de destino (em geral, a \arq{main});
+  \item preencha um título claro e uma descrição do que mudou e por quê;
+  \item indique revisores, se a equipe usar;
+  \item clique em \textbf{Create merge request}.
+\end{enumerate}
+
+Depois disso, a aba \textbf{Changes} mostra linha a linha o que mudou, e a revisão acontece em comentários ali mesmo.
+
+\section{O fluxo básico de trabalho em equipe}
+
+\begin{center}
+\begin{tikzpicture}[p/.style={caixa, minimum width=1.55cm, text width=1.35cm, minimum height=1.15cm, font=\scriptsize, inner sep=3pt}]
+  \foreach \i/\t/\c in {0/{\ttfamily git\\pull}/azulMB, 1/Alterar\\código/azulMB, 2/{\ttfamily git\\status}/azulMB, 3/{\ttfamily git\\add}/azulMB,
+                        4/{\ttfamily git\\commit}/azulMB, 5/{\ttfamily git\\push}/azulMB, 6/Merge\\Request/verdeMB, 7/Revisão\\e merge/verdeMB}{
+    \node[p=\c] (n\i) at (\i*1.95,0) {\t};}
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,6}{\draw[setafina] (n\i) -- (n\j);}
+\end{tikzpicture}
+\end{center}
+
+\begin{terminal}
+git switch main
+git pull                              # começa sempre atualizado
+git switch -c minha-branch            # trabalha numa branch própria
+# ... realizar as alterações ...
+git status
+git add arquivo-alterado.py
+git commit -m "Adiciona nova funcionalidade"
+git push origin minha-branch
+# depois: abrir o Merge Request no GitLab
+\end{terminal}
+
+\begin{dica}[Regra de ouro]
+Comece sempre com \cmd{git pull} e mantenha a sua branch curta. Quanto mais tempo ela fica longe da \arq{main}, maior a chance de conflito.
+\end{dica}
+
+\begin{atencao}[\texttt{git add .}]
+\cmd{git add .} prepara \textbf{tudo} o que mudou na pasta, inclusive arquivos que você não queria enviar. Confira com \cmd{git status} antes, ou adicione os arquivos pelo nome.
+\end{atencao}

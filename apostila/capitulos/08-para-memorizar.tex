@@ -1,0 +1,85 @@
+\chapter{Para levar daqui}
+\label{cap:memorizar}
+
+\section{Os dois problemas, lado a lado}
+
+Os dois problemas parecem diferentes, mas se completam:
+
+\begin{center}
+\begin{tikzpicture}[p/.style={caixa, minimum width=3.6cm, font=\small}]
+  \node[p, fill=azulMB, text=white, font=\small\bfseries] (s) at (0,0) {SISTEMA};
+  \node[p=verdeMB] (v) at (-3.8,-1.3) {\textbf{Versionamento}\\\scriptsize Problema 1};
+  \node[p=ouroMB!85!black] (k) at (3.8,-1.3) {\textbf{Conhecimento}\\\scriptsize Problema 2};
+  \node[p=verdeMB] (g) at (-3.8,-2.6) {Git + GitLab};
+  \node[p=ouroMB!85!black] (i) at (3.8,-2.6) {IA + validação humana};
+  \node[p=verdeMB] (gg) at (-3.8,-3.8) {Histórico e revisão};
+  \node[p=ouroMB!85!black] (d) at (3.8,-3.8) {Documentação};
+  \node[p, fill=verdeClaro, minimum width=5.4cm] (f) at (0,-5.1) {\textbf{Manutenção e evolução seguras}};
+  \draw[setafina] (s) -| (v); \draw[setafina] (s) -| (k);
+  \draw[setafina] (v)--(g); \draw[setafina] (g)--(gg); \draw[setafina] (k)--(i); \draw[setafina] (i)--(d);
+  \draw[setafina] (gg) |- (f); \draw[setafina] (d) |- (f);
+\end{tikzpicture}
+\end{center}
+
+\section{Conceitos fundamentais}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{azulMB}}l X@{}}
+\toprule
+Git & Sistema de controle de versão. \\
+GitLab & Plataforma de colaboração e gerenciamento baseada em Git. \\
+Branch & Linha de desenvolvimento. \\
+Commit & Registro de uma alteração no histórico. \\
+Merge & Integração de históricos ou alterações. \\
+Merge Request & Solicitação para integrar uma branch em outra, normalmente com revisão. \\
+GitLab CLI & Ferramenta para interagir com o GitLab pelo terminal (\texttt{glab}). \\
+Conflito & Situação em que o Git não consegue decidir sozinho como combinar alterações. \\
+IA & Ferramenta auxiliar de análise, desenvolvimento e documentação, sob orientação e validação humana. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Fluxos recomendados}
+
+\begin{center}
+\begin{tikzpicture}[p/.style={caixa, minimum width=4.2cm, minimum height=0.62cm, font=\footnotesize, inner sep=2pt}]
+  \node[font=\small\bfseries\color{verdeMB}] at (0,0.8) {Para um novo desenvolvimento};
+  \foreach \t [count=\i] in {Atualizar o projeto, Criar uma branch, Desenvolver, Testar, Commit, Push, Merge Request, Revisão, Aprovação, Merge}{
+    \node[p=verdeMB] (a\i) at (0,-\i*0.82+0.82) {\i.\; \t};}
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {1,...,9}{\draw[setafina] (a\i) -- (a\j);}
+  \node[font=\small\bfseries\color{ouroMB!80!black}] at (7,0.8) {Para um sistema legado};
+  \foreach \t [count=\i] in {Descobrir, Versionar, Analisar, Documentar, Validar, Corrigir ou refatorar, Testar, Manter}{
+    \node[p=ouroMB!85!black] (b\i) at (7,-\i*0.82+0.82) {\i.\; \t};}
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {1,...,7}{\draw[setafina] (b\i) -- (b\j);}
+\end{tikzpicture}
+\end{center}
+
+\section{Mensagem final}
+
+O conhecimento técnico de uma equipe não deve permanecer apenas na cabeça de quem desenvolveu o sistema.
+
+\begin{itemize}
+  \item O código deve ter \textbf{histórico}.
+  \item O sistema deve ter \textbf{documentação}.
+  \item As alterações devem ter \textbf{revisão}.
+  \item As decisões importantes devem ter \textbf{contexto}.
+\end{itemize}
+
+As ferramentas de IA podem acelerar esse trabalho, desde que usadas dentro de um processo controlado, com objetivos claros, restrições bem definidas e validação humana.
+
+\begin{center}
+\begin{tikzpicture}[p/.style={caixa, minimum width=2.5cm, text width=2.3cm, minimum height=1.2cm, font=\footnotesize}]
+  \foreach \t [count=\i] in {Código, Histórico, Documentação, Processo, {Conhecimento compartilhado}}{
+    \node[p] at (\i*3.1,0) {\t};}
+  \foreach \i in {1,...,4}{\node[font=\large\bfseries\color{ouroMB}] at (\i*3.1+1.55,0) {+};}
+  \node[caixa=verdeMB, minimum width=6cm, font=\small\bfseries] at (9.3,-1.5) {= Sistema mais sustentável};
+\end{tikzpicture}
+\end{center}
+
+\vspace{4mm}
+\begin{center}
+\begin{minipage}{\linewidth}\centering
+{\titulofonte\fontsize{24}{28}\selectfont\color{azulMB} TORNAR OS SISTEMAS MAIS FÁCEIS DE COMPREENDER,\\ MANTER, COMPARTILHAR E EVOLUIR.}
+\end{minipage}
+\end{center}

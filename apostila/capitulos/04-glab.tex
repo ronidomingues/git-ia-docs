@@ -1,0 +1,74 @@
+\chapter{GitLab CLI: o GitLab pelo terminal}
+\label{cap:glab}
+
+\begin{conceito}[GitLab CLI]
+O GitLab CLI, usado pelo comando \cmd{glab}, é a ferramenta oficial para \textbf{interagir com o GitLab diretamente pelo terminal}: Merge Requests, Issues, projetos, pipelines, branches, releases e autenticação.
+\end{conceito}
+
+\begin{center}
+\begin{tikzpicture}[b/.style={caixa, minimum width=3.6cm, minimum height=1.4cm}]
+  \node[b] (g) at (0,0) {\textbf{Git}\\\scriptsize controle de versão};
+  \node[b=verdeMB] (l) at (4.6,0) {\textbf{GitLab}\\\scriptsize plataforma de colaboração};
+  \node[b=ouroMB!85!black] (c) at (9.2,0) {\textbf{glab}\\\scriptsize o GitLab no terminal};
+\end{tikzpicture}
+\end{center}
+
+\section{Instalação}
+
+As formas de instalar mudam conforme o sistema e a versão. Siga a página oficial: \url{https://gitlab.com/gitlab-org/cli}, seção \emph{Installation}. Para conferir:
+
+\begin{terminal}
+glab --version
+\end{terminal}
+
+\section{Autenticação}
+
+O \cmd{glab} precisa saber em qual GitLab e com qual usuário trabalhar. Num GitLab instalado pela instituição, informe o endereço dele:
+
+\begin{terminal}
+glab auth login --hostname <endereco-do-gitlab>
+\end{terminal}
+
+O comando pergunta como você quer se autenticar. O caminho mais comum é um \termo{token de acesso pessoal}, gerado no GitLab em \textbf{Preferências do usuário \faChevronRight\ Access tokens}.
+
+\begin{atencao}[Token é senha]
+Um token de acesso dá acesso à sua conta. Não compartilhe, não envie por e-mail ou chat e não grave em arquivo de projeto. Dê a ele só as permissões necessárias e uma data de validade.
+\end{atencao}
+
+\section{Os comandos mais úteis}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily\color{azulMB}}l X@{}}
+\toprule
+glab mr create & cria um Merge Request a partir da branch atual \\
+glab mr create -s origem -b destino & escolhe as branches de origem e de destino \\
+glab mr list & lista os Merge Requests abertos do projeto \\
+glab mr view & mostra o Merge Request da branch atual \\
+glab mr diff & mostra as alterações do Merge Request \\
+glab mr approve & aprova um Merge Request (se você tiver permissão) \\
+glab mr merge & faz o merge (se você tiver permissão) \\
+glab issue list & lista as Issues \\
+glab ci status & mostra a situação do pipeline da branch atual \\
+glab repo clone grupo/projeto & clona um projeto pelo nome \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Exemplo completo de criação de Merge Request:
+
+\begin{terminal}
+glab mr create --source-branch desenvolvimento --target-branch main \
+  --title "Integra o sistema ao repositório institucional" \
+  --description "Une o histórico local ao histórico do GitLab."
+\end{terminal}
+
+Todo comando tem ajuda embutida: \cmd{glab mr create --help}.
+
+\section{Terminal ou interface web?}
+
+Tudo o que é versionamento e merge dá para fazer no Git, localmente. A parte de colaboração no GitLab dá para fazer com o \cmd{glab}. Mesmo assim, em ambiente institucional a \textbf{interface web continua importante} para revisão visual, aprovação, auditoria, acompanhamento dos pipelines e conversa da equipe.
+
+\begin{atencao}[As regras valem no terminal também]
+O \cmd{glab} não pula regras. Se a \arq{main} exige aprovação de um responsável, \cmd{glab mr merge} vai esperar essa aprovação como a interface web esperaria.
+\end{atencao}

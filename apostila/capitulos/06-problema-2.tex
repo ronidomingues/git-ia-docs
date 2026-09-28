@@ -1,0 +1,413 @@
+\chapter{Problema 2: documentar sistemas legados com um agente de IA}
+\label{cap:problema2}
+
+\section{Versionado não é documentado}
+
+Resolvido o Problema 1, os sistemas passaram a ter histórico no GitLab. Mas surgiu outro problema:
+
+\begin{conceito}[A ideia central]
+\textbf{Um sistema estar versionado não significa que ele esteja documentado ou compreendido.}
+\end{conceito}
+
+Os sistemas existentes, alguns legados, em sua maioria não tinham documentação nenhuma. O quadro típico era este: documentação incompleta ou desatualizada, conhecimento concentrado em poucas pessoas, regras de negócio que só existiam no código, dependências desconhecidas, configurações pouco claras e manutenção difícil. Isso forma uma cadeia:
+
+\begin{center}
+\begin{tikzpicture}[p/.style={caixa, minimum width=2.1cm, text width=1.9cm, minimum height=1.15cm, font=\scriptsize}]
+  \foreach \i/\t/\c in {0/Código\\existente/azulMB, 1/Pouca\\documentação/azulMB, 2/Conhecimento\\concentrado/azulMB,
+                        3/Manutenção\\difícil/ouroMB!85!black, 4/Evolução\\difícil/ouroMB!85!black, 5/Risco\\operacional/vermelhoAlerta}{
+    \node[p=\c] (n\i) at (\i*2.45,0) {\t};}
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,4}{\draw[setafina] (n\i) -- (n\j);}
+\end{tikzpicture}
+\end{center}
+
+\section{A abordagem: IA como ferramenta de engenharia}
+
+A ferramenta usada para acelerar o trabalho foi um \termo{agente de IA para desenvolvimento}, o \textbf{Claude Code}, da Anthropic. Diferente de um chat comum, um agente desses trabalha dentro da pasta do projeto: lê os arquivos, roda comandos (com permissão) e escreve documentos.
+
+\begin{atencao}[A ideia não é \enquote{mandar a IA escrever a documentação}]
+A proposta é usar a IA como \textbf{ferramenta auxiliar de engenharia de software}: descobrir a arquitetura, analisar o código, identificar dependências, fluxos, regras de negócio, duplicações, problemas e riscos de segurança, sugerir refatorações e, por fim, produzir documentação.
+\end{atencao}
+
+\begin{center}
+\begin{tikzpicture}[c/.style={caixa, minimum width=3.9cm, minimum height=2.9cm, text width=3.6cm, align=left, font=\small, anchor=north}]
+  \node[c] (e1) at (0,0) {{\bfseries\color{azulMB}\faUserTie\; Engenheiro}\\[3pt] • define o objetivo\\ • define restrições\\ • orienta o agente};
+  \node[c=ouroMB!85!black] (ia) at (5,0) {{\bfseries\color{azulMB}\includegraphics[height=3.5mm]{\imagens/claude-simbolo.pdf}\; Agente de IA}\\[3pt] • analisa\\ • sugere\\ • documenta\\ • executa o autorizado};
+  \node[c=verdeMB] (e2) at (10,0) {{\bfseries\color{azulMB}\faUserCheck\; Engenheiro}\\[3pt] • revisa\\ • valida no sistema real\\ • decide};
+  \draw[seta] (e1.east|-0,-1.45) -- (ia.west|-0,-1.45);
+  \draw[seta] (ia.east|-0,-1.45) -- (e2.west|-0,-1.45);
+\end{tikzpicture}
+\end{center}
+
+\section{A IA não substitui a validação humana}
+
+O agente não é autoridade sobre o sistema. Ele pode interpretar errado regras de negócio, a intenção de quem escreveu o código, comportamentos implícitos, configurações, dependências e funcionalidades. Por isso o fluxo é sempre:
+
+\begin{center}
+\begin{tikzpicture}[p/.style={caixa, minimum width=2.5cm, text width=2.3cm, minimum height=1.1cm, font=\footnotesize}]
+  \foreach \i/\t/\c in {0/Sistema/azulMB, 1/IA analisa/ouroMB!85!black, 2/IA produz hipóteses e documentação/ouroMB!85!black, 3/Humano valida/verdeMB, 4/Documentação consolidada/verdeMB}{
+    \node[p=\c] (n\i) at (\i*3,0) {\t};}
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,3}{\draw[setafina] (n\i) -- (n\j);}
+\end{tikzpicture}
+\end{center}
+
+\begin{conceito}[Regra]
+\textbf{A documentação gerada por IA deve ser validada contra o sistema real.} A responsabilidade final sobre as decisões técnicas continua sendo humana.
+\end{conceito}
+
+\section{A evolução real dos prompts}
+
+\subsection{De onde vêm estes dados}
+
+Um \termo{prompt} é a instrução que se dá ao agente. A qualidade do resultado depende muito dela. Para esta apostila, foi analisado o histórico de prompts do Claude Code do autor (o arquivo \arq{\textasciitilde/.claude/history.jsonl}), que registra cada pedido feito ao agente:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}>{\bfseries\color{azulMB}}r l@{}}
+717 & prompts registrados \\
+123 & sessões de trabalho \\
+10/07 a 28/09/2026 & período coberto \\
+8 & sistemas com trabalho de documentação completa (13/07 a 15/09) \\
+\end{tabular}
+\end{center}
+
+Os nomes dos sistemas institucionais foram omitidos. Onde for preciso distingui-los, eles aparecem como Sistema A, B, C\ldots
+
+\begin{atencao}[Limite dos dados]
+O histórico guarda sempre o texto digitado, mas o texto dos prompts \emph{colados} só ficou salvo a partir de 03/09. Dos prompts colados antes disso restam só o tamanho e a data. As respostas do agente não foram analisadas, só os pedidos.
+\end{atencao}
+
+\subsection{Cinco versões}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{azulMB}}l l l r >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Versão} & \textbf{Início} & \textbf{Idioma} & \textbf{Tamanho} & \textbf{Características} \\
+\midrule
+V0 & 13/07 & PT & 953 & Sequência de 9 prompts colados: engenharia reversa, arquitetura, especificações, tarefas. Já pedia para \textbf{não modificar} e descobrir antes de escrever \\
+V1 & 16/07 & PT & 231–944 & Pedidos curtos digitados, que cresciam a cada reuso. Em 24/07 surge o \textbf{GAP em vez de inferir}; em 27/07, \textbf{\enquote{não altere nenhuma linha de código}} \\
+V2 & 10/08 & PT & 4.551 & Lista numerada de 47 itens: arquitetura, defeitos, LGPD (RIPD/DPIA), ADRs, UML, Docker, guia para leigos, projeto de evolução nos moldes do PMI \\
+V3 & 14/09 & EN & 61.556 & Protocolo de refatoração: \textbf{fase 0 somente leitura}, regra de não pressupor, política de commits. \textbf{Sem exigência de idioma} \\
+V4 & 15/09 & EN & 37.883 & Prompt final (\arq{model/SYSTEM\_DOCUMENTATION.md}): 42 seções, \textbf{saída obrigatória em PT-BR}, nunca inventar, AS-IS/TO-BE/GAP, \emph{Safe Stop-and-Report}, fases com validação \\
+\bottomrule
+\end{tabularx}
+\end{center}
+{\footnotesize\color{azulMedio} Tamanho em caracteres. \enquote{Início} é a data do primeiro uso de cada versão.}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  xbar, width=12cm, height=5.8cm, bar width=10pt,
+  xmode=log, log basis x=10, xmin=100, xmax=300000,
+  xlabel={\footnotesize tamanho do prompt em caracteres (escala logarítmica)},
+  symbolic y coords={V4,V3,V2,V1,V0}, ytick=data,
+  yticklabels={{\bfseries V4 · 15/09},{V3 · 14/09},{V2 · 10/08},{V1 · 16/07},{V0 · 13/07}},
+  yticklabel style={font=\footnotesize\color{azulMB}},
+  xticklabel style={font=\scriptsize\color{azulMedio}},
+  axis x line*=bottom, axis y line*=left, x axis line style={azulMedio!40}, y axis line style={draw=none},
+  xmajorgrids, grid style={azulMedio!15}, major tick style={draw=none},
+  nodes near coords, nodes near coords style={font=\footnotesize\color{cinzaTexto}, anchor=west},
+  point meta=explicit symbolic, enlarge y limits=0.14]
+  \addplot[fill=azulMB, draw=none] coordinates {
+    (37883,V4) [37.883] (61556,V3) [61.556] (4551,V2) [4.551] (944,V1) [231–944] (953,V0) [953]};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+Do primeiro pedido livre (231 caracteres) ao prompt final (37.883), o tamanho cresceu cerca de \textbf{164 vezes}. O V4 é \textbf{38\,\% menor} que o V3: ficou mais enxuto e, ao mesmo tempo, mais rigoroso.
+
+\subsection{Trechos que marcam a evolução}
+
+\begin{analogia}[V0 — 13/07, português]
+\enquote{Você é um Arquiteto de Software Sênior. Sua missão NÃO é modificar este projeto. [\ldots] Faça uma engenharia reversa completa [\ldots] Não escreva ainda a documentação final. Primeiro gere um relatório de descoberta [\ldots] Se faltar contexto, continue investigando automaticamente.}\\[3pt]
+\footnotesize Já tinha a ideia de descobrir antes de escrever. Mas mandava o agente \enquote{continuar sozinho} quando faltasse contexto, e ainda não proibia inventar.
+\end{analogia}
+
+\begin{analogia}[V1 — 24/07, português]
+\enquote{Se alguma informação estiver faltando, ela deve ser registrada como uma lacuna (GAP) em vez de ser inferida.}\\[3pt]
+\footnotesize Primeira vez que a falta de informação vira um registro explícito, e não um palpite.
+\end{analogia}
+
+\begin{analogia}[V3 — 14/09, inglês]
+\enquote{You are NOT authorized to simply rewrite the entire system at once. [\ldots] OBSERVE → INVENTORY → UNDERSTAND}\\[3pt]
+\footnotesize \enquote{Você NÃO está autorizado a simplesmente reescrever o sistema inteiro de uma vez. Observar → inventariar → entender.}
+\end{analogia}
+
+\begin{analogia}[V4 — 15/09, inglês]
+\enquote{ALL CONTENT YOU PRODUCE MUST BE WRITTEN IN BRAZILIAN PORTUGUESE.}\\[2pt]
+\enquote{Never transform an assumption into a fact.}\\[3pt]
+\footnotesize \enquote{Todo o conteúdo que você produzir deve ser escrito em português brasileiro.} \enquote{Nunca transforme uma suposição em fato.}
+\end{analogia}
+
+\section{O que deu errado e o que cada falha ensinou}
+
+O histórico mostra os tropeços com clareza. Cada regra importante do prompt final apareceu \textbf{logo depois} de uma falha observada:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.45}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X r >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Falha observada} & \textbf{Ocorrências} & \textbf{Lição que virou regra} \\
+\midrule
+O agente parou no meio ou foi preciso pedir \enquote{continue de onde parou} & \textasciitilde27 & Trabalho em fases menores, com artefato salvo ao fim de cada fase \\
+Limite de uso ou de contexto atingido & 14 + 10 & Idem; prompt mais enxuto do V3 para o V4 \\
+Prompt reenviado ou reexecutado & 4 & Instruções mais precisas desde o início \\
+Documentação superficial ou incompleta (\enquote{quero uma documentação mais profunda}) & 4 & Análise profunda em fases e auditoria de completude \\
+Resposta em inglês depois do prompt em inglês & 1 & \S1 do V4: saída obrigatória em PT-BR \\
+Agente criou ou alterou algo que não devia & \textasciitilde5 & Fase 0 somente leitura e \emph{Safe Stop-and-Report} \\
+Commits com coautoria de IA & 4 lembretes & Cláusula explícita no protocolo de refatoração (V3) \\
+Complexidade desnecessária (\enquote{preciso de coisas óbvias}) & 2 & Pedir clareza e público leigo \\
+\bottomrule
+\end{tabularx}
+\end{center}
+{\footnotesize\color{azulMedio} \enquote{14 + 10} = 14 avisos de limite de uso e 10 compactações de contexto. Contagens aproximadas, feitas sobre o texto dos prompts.}
+
+\begin{dica}
+Não houve nenhuma queixa explícita de informação inventada. A regra \enquote{nunca inventar} entrou de forma \textbf{preventiva}: primeiro como \enquote{GAP em vez de inferir} (24/07), depois como princípio absoluto no V4.
+\end{dica}
+
+\section{A melhora, em números}
+
+\subsection*{Como foi medido}
+
+Cada tarefa de documentação foi contada uma vez e classificada pela versão de prompt usada. Considerou-se \textbf{retrabalho} qualquer um destes sinais: pedir para refazer ou aprofundar a documentação do mesmo sistema, reenviar o mesmo prompt, pedir \enquote{continue}, ou corrigir idioma, pasta ou documento faltando.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\small
+\begin{tabular}{@{}>{\bfseries\color{azulMB}}l l r r r@{}}
+\toprule
+\textbf{Fase} & \textbf{Tipo de prompt} & \textbf{Tarefas} & \textbf{Com retrabalho} & \textbf{Taxa} \\
+\midrule
+V0 & pipeline estruturado, PT & 1 & 0 & \textasciitilde0\,\% \\
+V1 & pedidos livres, PT & 12 & 6 & \textasciitilde50\,\% \\
+V2 & lista numerada, PT & 3 & 2 & \textasciitilde67\,\% \\
+V3 & protocolo em inglês, sem regra de idioma & 2 & 1 & \textasciitilde50\,\% \\
+V4 & prompt final, inglês + saída PT-BR & 1 & 0 & \textasciitilde0\,\% \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Prompts livres e lista (V1 + V2)}} & 15 & 8 & \textbf{\textasciitilde53\,\%} \\
+\multicolumn{2}{@{}l}{\textbf{Prompts com contrato de execução (V0 + V3 + V4)}} & 4 & 1 & \textbf{\textasciitilde25\,\%} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}
+  \node[align=center] (a) at (0,0) {{\titulofonte\fontsize{48}{48}\selectfont\color{vermelhoAlerta}\textasciitilde53\%}\\[-2pt]\footnotesize retrabalho com prompts livres};
+  \node[font=\Huge\color{ouroMB}] at (3.6,0.3) {\faLongArrowAltRight};
+  \node[align=center] (b) at (7.2,0) {{\titulofonte\fontsize{48}{48}\selectfont\color{verdeMB}\textasciitilde25\%}\\[-2pt]\footnotesize retrabalho com contrato de execução};
+\end{tikzpicture}
+\end{center}
+
+\begin{atencao}[Leia com cautela]
+É uma \textbf{estimativa indicativa}, não uma prova estatística:
+\begin{itemize}
+  \item a amostra é pequena (19 tarefas no total);
+  \item depois de 15/09 só houve uma documentação completa com o V4 registrada no histórico;
+  \item parte das paradas veio de limite de uso da ferramenta, e não da qualidade do prompt;
+  \item o V2 foi pior que o V1 provavelmente porque pedia muito mais (47 itens, PDFs, projeto PMI), o que levava ao limite de uso e a paradas no meio.
+\end{itemize}
+Os sinais qualitativos, porém, são claros: cada falha gerou uma regra, e as regras resolveram as falhas que as motivaram.
+\end{atencao}
+
+\section{O prompt final por dentro}
+
+O prompt final (V4) está no arquivo \arq{model/SYSTEM\_DOCUMENTATION.md}, que acompanha este material. Ele tem 42 seções, em inglês. Os blocos mais importantes são estes.
+
+\subsection{Contrato de execução}
+
+O prompt começa definindo \textbf{papéis} para o agente: engenheiro full-stack sênior, DevOps, arquiteto de software, engenheiro de segurança, QA, analista de sistemas, redator técnico, engenheiro de banco de dados, SRE, gerente de projetos e analista de negócios. E também a postura de um \textbf{professor} que valoriza clareza, organização e construção gradual do entendimento.
+
+A missão declarada \textbf{não} é \enquote{escrever documentação}. É descobrir, entender, fazer engenharia reversa, validar contra o código, identificar o comportamento real, documentar o estado atual, apontar defeitos e riscos, explicar para públicos técnicos e leigos, propor uma evolução justificada e, por fim, \textbf{validar de forma independente} o que foi produzido.
+
+\subsection{Idioma obrigatório}
+
+Tudo o que o agente produz (arquivos \arq{.md} e \arq{.pdf}, README, rótulos de diagramas, tabelas, manuais, planos e relatórios) deve estar em \textbf{português brasileiro} formal. As exceções são elementos técnicos que não se traduzem, como nomes de funções, variáveis e arquivos, comandos, bibliotecas e código-fonte. Mesmo nesses casos, a explicação em volta fica em português.
+
+\subsection{Nunca inventar}
+
+Todo fato sobre o sistema precisa de evidência: código, configuração, banco, migrações, testes, infraestrutura, documentação existente, logs. O que não puder ser confirmado recebe um rótulo explícito:
+
+\begin{center}
+\ttfamily\small\color{azulMB}
+DESCONHECIDO \enspace·\enspace NÃO VERIFICADO \enspace·\enspace NÃO ENCONTRADO \enspace·\enspace INFERIDO\\
+RECOMENDAÇÃO \enspace·\enspace PROPOSTA \enspace·\enspace REQUER VALIDAÇÃO
+\end{center}
+
+\subsection{Separação de estados}
+
+A documentação nunca mistura:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{0.9\linewidth}{@{}>{\bfseries\color{azulMB}}l X@{}}
+\toprule
+AS-IS & como o sistema \textbf{é hoje} \\
+TO-BE & como deveria ser depois de uma evolução proposta \\
+GAP & a diferença entre os dois \\
+RECOMMENDATION & uma melhoria tecnicamente justificada \\
+PROPOSED IMPLEMENTATION & uma forma possível de implementar a recomendação \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Somente leitura na descoberta}
+
+Durante a descoberta e a análise, o agente \textbf{não} refatora, não altera código, não apaga nem renomeia arquivos, não muda dependências, infraestrutura, banco ou configuração, e não executa operações destrutivas. Só pode criar documentação em \arq{docs/}.
+
+\begin{conceito}[Descobrir antes de modificar]
+Isso reduz o risco de a IA fazer alterações prematuras baseadas numa compreensão incompleta do sistema.
+\end{conceito}
+
+\subsection{Safe Stop-and-Report}
+
+Um agente que trabalha sobre um sistema real precisa saber \textbf{quando parar}. O protocolo lista as situações em que o agente deve interromper a operação e reportar, por exemplo:
+
+\begin{itemize}
+  \item falta informação que o repositório não fornece;
+  \item duas fontes de evidência se contradizem;
+  \item seria preciso uma operação destrutiva ou afetar produção, banco real ou dados de usuários;
+  \item o agente encontrou senhas, tokens, chaves ou dados pessoais;
+  \item continuar exigiria inventar informação ou supor uma autorização que não foi dada;
+  \item é preciso aprovação humana para seguir.
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[p/.style={caixa, minimum width=3cm, minimum height=1cm, font=\small\bfseries}]
+  \node[p=vermelhoAlerta] (a) at (0,0) {Problema crítico};
+  \node[p] (b) at (3.6,0) {PARAR};
+  \node[p] (c) at (7.2,0) {REPORTAR};
+  \node[p=verdeMB] (d) at (10.8,0) {AGUARDAR};
+  \draw[setafina] (a)--(b); \draw[setafina] (b)--(c); \draw[setafina] (c)--(d);
+  \node[font=\scriptsize, below=1mm of d] {a decisão humana};
+\end{tikzpicture}
+\end{center}
+
+Cada parada gera um relatório padronizado (\enquote{SAFE STOP REPORT}) com o que estava sendo feito, o motivo, a evidência, os fatos verificados, o risco, o que \emph{não} foi alterado e qual decisão é necessária. A gravidade vai de \textbf{STOP-P0} (crítico, parada imediata) a \textbf{STOP-P3} (baixo). E uma parada \textbf{não é fracasso}: é o comportamento correto diante do risco.
+
+\subsection{Documentação em fases}
+
+O prompt proíbe fazer tudo numa tacada só. O trabalho segue fases, cada uma com um artefato:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{azulMB}}l >{\raggedright\arraybackslash}X >{\ttfamily\footnotesize}l@{}}
+\toprule
+\textbf{Fase} & \textbf{Objetivo} & \textrm{\textbf{Artefato}} \\
+\midrule
+0 & Descoberta somente leitura: estrutura, tecnologias, dependências, APIs, banco & docs/00-discovery/DISCOVERY.md \\
+1 & Mapa do sistema: componentes, relações, entrada, processamento e saída de dados & docs/00-discovery/SYSTEM\_MAP.md \\
+2 & Análise profunda: fluxos, regras, persistência, autenticação, integrações & \textrm{(alimenta as seguintes)} \\
+3 & Modelo de conhecimento: entidades, regras, fluxos, riscos, lacunas & docs/00-discovery/KNOWLEDGE\_MODEL.md \\
+4 & Validação do entendimento: contradições, conclusões sem evidência, esquecimentos & docs/00-discovery/VALIDATION.md \\
+5+ & Documentação técnica, regras de negócio, dados, APIs, segurança, operação, README, guia para leigos, projeto de evolução e auditorias & docs/ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{conceito}[Por que em fases]
+Para evitar a cascata \enquote{entendimento errado \faLongArrowAltRight\ documentação errada \faLongArrowAltRight\ recomendação errada \faLongArrowAltRight\ projeto futuro errado}. Em vez disso: \textbf{descobrir \faLongArrowAltRight\ evidenciar \faLongArrowAltRight\ modelar \faLongArrowAltRight\ validar \faLongArrowAltRight\ documentar \faLongArrowAltRight\ auditar \faLongArrowAltRight\ evoluir}.
+\end{conceito}
+
+\subsection{O restante do prompt}
+
+As demais seções pedem: visão geral, arquitetura e tecnologias; regras de negócio (atuais e recomendadas); arquitetura de dados; APIs; telas; segurança; LGPD (RIPD/DPIA); defeitos, falhas, fraquezas e dívida técnica; modelo de qualidade e testes; operação, Docker e recuperação de desastres; plano de manutenção e de desenvolvimento; modelo de ameaças; ADRs (registros de decisão de arquitetura); governança; glossário; diagramas; requisitos; README profissional; documentação para leigos (manual do usuário, guia completo, runbook); projeto de evolução alinhado ao PMI; priorização de P0 a P3; rastreabilidade; auditorias de qualidade e de completude; geração de PDF; e um relatório executivo final. O fecho resume o espírito:
+
+\begin{analogia}[Princípio final do prompt]
+\enquote{Your objective is not to make the system look better than it actually is. Your objective is to make the system \textbf{understood exactly as it is}.}\\[3pt]
+\footnotesize \enquote{O objetivo não é fazer o sistema parecer melhor do que é. O objetivo é fazer o sistema ser \textbf{entendido exatamente como ele é}.}
+\end{analogia}
+
+\section{Prompt em inglês, documentação em português}
+
+O prompt final foi mantido em inglês. A motivação adotada foi a \textbf{economia de tokens}: os modelos de IA cobram e limitam o trabalho por \emph{tokens} (pedaços de texto), e textos em inglês costumam ser divididos em menos tokens que o mesmo conteúdo em português.
+
+\begin{atencao}[O que os dados mostram]
+O histórico confirma a troca de idioma e o efeito colateral dela, mas \textbf{não mediu} a economia de tokens. Trate essa economia como uma prática adotada, não como resultado comprovado aqui.
+\end{atencao}
+
+O efeito colateral foi real: no dia 14/09, o prompt V3, só em inglês, fez o agente responder em inglês. No dia seguinte, o V4 ganhou a regra de idioma. A lição:
+
+\begin{conceito}[Idioma do prompt × idioma do resultado]
+São coisas diferentes. Se você escreve o prompt em inglês e quer o resultado em português, \textbf{diga isso explicitamente}.
+\end{conceito}
+
+\section{O que o prompt pede e o que ele entrega}
+
+O prompt pode ser resumido em seis grandes perguntas:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{0.9\linewidth}{@{}>{\bfseries\color{verdeMB}}l X@{}}
+\toprule
+Descoberta & O que existe neste sistema? \\
+Compreensão & Como as partes do sistema se relacionam? \\
+Funcionamento & Como o sistema funciona? \\
+Auditoria & Quais são os problemas, riscos e pontos fracos? \\
+Documentação & Como transformar esse conhecimento em documentação útil? \\
+Validação & Como verificar se a documentação corresponde ao sistema real? \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+O retorno esperado não é \enquote{vários arquivos Markdown}. É transformar \enquote{código que poucas pessoas conhecem} em \enquote{sistema cujo funcionamento pode ser compreendido e mantido por outras pessoas}. Uma pessoa nova deve conseguir, aos poucos: entender o propósito do sistema, instalar o ambiente, compreender a arquitetura e o banco, entender os principais fluxos, localizar funcionalidades, identificar dependências, diagnosticar problemas, fazer manutenção e continuar a evolução.
+
+Um exemplo de estrutura produzida (a exata se adapta a cada sistema):
+
+\begin{center}
+\begin{minipage}{0.62\linewidth}
+\dirtree{%
+.1 docs/.
+.2 00-discovery/.
+.3 DISCOVERY.md.
+.3 SYSTEM\_MAP.md.
+.3 KNOWLEDGE\_MODEL.md.
+.3 VALIDATION.md.
+.2 architecture.md.
+.2 business-rules.md.
+.2 database.md.
+.2 api.md.
+.2 security.md.
+.2 known-issues.md.
+.2 technical-debt.md.
+.2 guia-para-leigos.md.
+}
+\end{minipage}
+\end{center}
+
+\section{Como usar na prática}
+
+\begin{atencao}[Autorização primeiro]
+Antes de rodar um agente de IA sobre um sistema da instituição, confirme que o uso está autorizado e segue as normas de segurança da informação da sua OM. O agente lê o código e o envia a um serviço externo para ser processado.
+\end{atencao}
+
+\begin{enumerate}
+  \item Instale o Claude Code seguindo a documentação oficial: \url{https://docs.claude.com/en/docs/claude-code/overview}.
+  \item Garanta que o projeto está versionado e \textbf{limpo} (\cmd{git status} sem pendências). Assim, qualquer alteração do agente aparece no \cmd{git diff} e pode ser desfeita.
+  \item Crie uma branch para a documentação: \cmd{git switch -c docs/documentacao-inicial}.
+  \item Abra o terminal na pasta do projeto e inicie o agente com \cmd{claude}.
+  \item Entregue o prompt: cole o conteúdo ou peça para o agente ler o arquivo do prompt.
+  \item Acompanhe. Quando o agente parar e reportar (\emph{safe stop}), leia o relatório e decida.
+  \item \textbf{Valide} a documentação contra o sistema real (veja a lista abaixo).
+  \item Registre a documentação com commit, envie a branch e abra um Merge Request, para que a equipe revise.
+\end{enumerate}
+
+\subsection*{Lista de validação}
+
+\begin{itemize}
+  \item A arquitetura documentada corresponde ao código?
+  \item Os endpoints citados realmente existem?
+  \item O banco de dados corresponde ao que está escrito?
+  \item As regras de negócio estão corretas? (pergunte a quem usa o sistema)
+  \item As instruções de instalação funcionam numa máquina limpa?
+  \item Os problemas apontados são reais?
+  \item O que ficou marcado como \texttt{DESCONHECIDO} ou \texttt{REQUER VALIDAÇÃO} foi tratado?
+  \item Nenhuma senha, token ou dado pessoal foi copiado para a documentação?
+\end{itemize}
+
+\begin{dica}
+A documentação é um \textbf{artefato vivo}. Quando o sistema mudar, ela também precisa ser revisada. Coloque a atualização da documentação como item do próprio Merge Request.
+\end{dica}

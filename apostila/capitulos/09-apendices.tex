@@ -1,0 +1,188 @@
+\chapter{Cola de comandos}
+\label{ap:cola}
+
+\renewcommand{\arraystretch}{1.2}
+
+\small
+\subsection*{\color{verdeMB}Configuração}
+\begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
+git config --global user.name "..." & seu nome \\
+git config --global user.email "..." & seu e-mail \\
+git config --list & ver a configuração \\
+\end{tabularx}
+
+\subsection*{\color{verdeMB}Começar}
+\begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
+git init -b main & criar repositório \\
+git clone <URL> & copiar um remoto \\
+\end{tabularx}
+
+\subsection*{\color{verdeMB}Registrar}
+\begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
+git status & estado atual \\
+git diff & o que mudou \\
+git add arquivo & preparar \\
+git commit -m "..." & registrar \\
+git commit -am "..." & preparar e registrar os já acompanhados \\
+git log --oneline --graph --all & histórico desenhado \\
+\end{tabularx}
+
+\subsection*{\color{verdeMB}Branches}
+\begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
+git branch & listar \\
+git switch -c nome & criar e entrar \\
+git switch nome & trocar \\
+git branch -m antigo novo & renomear \\
+git merge nome & trazer \texttt{nome} para a atual \\
+git merge --abort & cancelar o merge \\
+\end{tabularx}
+
+\subsection*{\color{verdeMB}Conflitos}
+\begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
+git restore --ours arq & manter o lado da branch atual \\
+git restore --theirs arq & manter o lado que chega \\
+git add arq & marcar como resolvido \\
+\end{tabularx}
+
+\subsection*{\color{verdeMB}Remoto}
+\begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
+git remote -v & listar remotos \\
+git remote add origin <URL> & adicionar remoto \\
+git fetch origin & baixar sem mesclar \\
+git pull & baixar e mesclar \\
+git push origin branch & enviar \\
+\end{tabularx}
+
+\subsection*{\color{verdeMB}Desfazer}
+\begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
+git restore arq & descartar mudança não preparada \\
+git restore --staged arq & tirar da preparação \\
+git revert <commit> & desfazer com novo commit \\
+\end{tabularx}
+
+\subsection*{\color{verdeMB}GitLab CLI}
+\begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
+glab auth login & autenticar \\
+glab mr create & criar MR \\
+glab mr list & listar MRs \\
+glab mr view & ver o MR \\
+glab mr merge & fazer o merge \\
+glab ci status & ver o pipeline \\
+\end{tabularx}
+
+
+% -----------------------------------------------------------------------------
+\chapter{Glossário}
+\label{ap:glossario}
+
+\begin{description}[style=nextline, font=\bfseries\color{azulMB}, leftmargin=0pt, itemsep=4pt]
+\item[Agente de IA] Programa baseado em modelo de linguagem que executa tarefas num ambiente (ler arquivos, rodar comandos, escrever documentos), e não só conversa.
+\item[Ancestral comum] Commit a partir do qual duas branches se separaram. Sem ele, o Git recusa o merge comum.
+\item[Área de preparação (\emph{staging})] Onde ficam as mudanças escolhidas para o próximo commit.
+\item[Bare repository] Repositório sem pasta de trabalho, só com o histórico. É o que um servidor guarda.
+\item[Branch] Linha de desenvolvimento; tecnicamente, um ponteiro para um commit.
+\item[Branch protegida] Branch que não aceita push direto; mudanças só por Merge Request.
+\item[CI/CD] Integração e entrega contínuas: testes e implantação automáticos a cada mudança.
+\item[Commit] Registro de um estado do projeto, com autor, data e mensagem.
+\item[Conflito] Quando duas mudanças na mesma região de um arquivo não podem ser combinadas automaticamente.
+\item[Fast-forward] Merge em que o Git só avança o ponteiro, porque não houve trabalho paralelo.
+\item[GAP] Lacuna entre o estado atual (AS-IS) e o desejado (TO-BE), ou informação que falta e não deve ser inventada.
+\item[HEAD] Referência para onde você está agora (em geral, a branch atual).
+\item[Merge] Integração de duas linhas de histórico.
+\item[Merge Request (MR)] Pedido para integrar uma branch em outra, com revisão. No GitHub: \emph{Pull Request}.
+\item[\texttt{origin}] Nome padrão do repositório remoto principal.
+\item[\texttt{ours} / \texttt{theirs}] Num merge: o lado da branch atual / o lado que está chegando.
+\item[Pipeline] Sequência automática de etapas (compilar, testar, publicar) executada pelo GitLab.
+\item[Prompt] Instrução dada a um modelo ou agente de IA.
+\item[Remoto] Cópia do repositório em outro lugar, como o GitLab.
+\item[Repositório] Pasta cujo histórico é controlado pelo Git.
+\item[Self-Managed] GitLab instalado e administrado pela própria organização.
+\item[Token] Na IA, pedaço de texto usado para medir custo e limite. No GitLab, credencial de acesso (trate como senha).
+\end{description}
+
+% -----------------------------------------------------------------------------
+\chapter{Plano da apresentação}
+\label{ap:plano}
+
+Roteiro de tempo da capacitação de 01/10/2026, das 10h às 11h. Os números de slide se referem a \arq{apresentacao/apresentacao.pdf}.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{azulMB}}l c c >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Horário} & \textbf{Duração} & \textbf{Slides} & \textbf{Conteúdo} \\
+\midrule
+10h00 & 3 min & 1--2 & Abertura, agenda e objetivos \\
+10h03 & 19 min & 3--15 & Fundamentos: por que versionar, Git, GitLab, Self-Managed, branch, Merge Request, comandos, fluxo, conflito, \texttt{glab} \\
+10h22 & 15 min & 16--25 & Problema 1: cenário, históricos sem relação, os oito passos, \texttt{ours} e \texttt{theirs} \\
+10h37 & 18 min & 26--35 & Problema 2: IA como ferramenta, evolução dos prompts, falhas e regras, números, fases, travas, idioma, entregas \\
+10h55 & 5 min & 36--39 & Encerramento, mensagem final e perguntas \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{dica}
+Se o tempo apertar, os slides 8 (recursos do GitLab), 12 (tabela de comandos) e 35 (o que o prompt entrega) podem ser passados rapidamente: o conteúdo deles está completo nesta apostila.
+\end{dica}
+
+% -----------------------------------------------------------------------------
+\chapter{Créditos e licenças}
+\label{ap:creditos}
+
+Todo o material de terceiros usado aqui está salvo localmente, na pasta \arq{assets/} (imagens e fontes), e o manual da marca em \arq{materials/manual-da-marca/}, para que a apostila e a apresentação possam ser recompiladas sem internet.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.3cm}@{}}
+\toprule
+\textbf{Item} & \textbf{Origem} & \textbf{Licença} \\
+\midrule
+Manual de Identidade Visual da Marinha do Brasil (cores e tipografia) & CCEM, dez/2025 (\arq{materials/manual-da-marca/}) & Material institucional da Marinha do Brasil \\
+Foto da Ilha das Cobras & Helder da Rocha, via Wikimedia Commons (\enquote{IlhaCobras.jpg}), reduzida & CC BY-SA 2.0 \\
+Logotipo do Git & Jason Long, via Wikimedia Commons & CC BY 3.0 \\
+Logotipo do GitLab (tanuki) & GitLab Inc., \arq{gitlab-com/gitlab-artwork} & CC BY-NC-SA 4.0; marca registrada da GitLab Inc. \\
+Símbolo do GitHub & GitHub Octicons, via Wikimedia Commons & MIT; marca da GitHub Inc. \\
+Símbolo do Claude & Wikimedia Commons & CC0; marca da Anthropic \\
+Tirinha xkcd \#1597 \enquote{Git} & Randall Munroe, \url{https://xkcd.com/1597/} & CC BY-NC 2.5 \\
+Fonte Montserrat & Julieta Ulanovsky e colaboradores & SIL Open Font License 1.1 \\
+Fonte Bebas Neue & Dharma Type, via Google Fonts & SIL Open Font License 1.1 \\
+Fonte Fira Mono & Mozilla / Carrois & SIL Open Font License 1.1 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+As marcas de terceiros (Git, GitLab, GitHub, Claude) aparecem apenas para identificar as ferramentas de que o texto trata. As licenças NC (não comercial) são compatíveis com o uso deste material: capacitação interna, sem fins lucrativos.
+
+\subsection*{Identidade visual}
+
+As cores seguem o Manual de Identidade Visual da Marinha do Brasil: Azul Marinha \texttt{\#050F41}, Amarelo Ouro \texttt{\#FAB932} e Verde Brasil \texttt{\#079551}. A tipografia de apoio oficial é a Montserrat, usada no texto. As tipografias de título do manual (Octin College e Bebas Neue Pro) são comerciais. No lugar delas, usamos a Bebas Neue livre, do mesmo desenho da alternativa oficial.
+
+% -----------------------------------------------------------------------------
+\chapter{Para continuar estudando}
+\label{ap:referencias}
+
+\begin{itemize}
+  \item \textbf{Pro Git}, de Scott Chacon e Ben Straub. O livro de referência do Git, gratuito e com tradução para o português: \url{https://git-scm.com/book/pt-br/v2}.
+  \item \textbf{Documentação oficial do Git}: \url{https://git-scm.com/docs}.
+  \item \textbf{Documentação do GitLab}: \url{https://docs.gitlab.com}. Veja em especial \emph{Merge requests} e \emph{Protected branches}.
+  \item \textbf{GitLab CLI (\texttt{glab})}: \url{https://gitlab.com/gitlab-org/cli}.
+  \item \textbf{Claude Code}: \url{https://docs.claude.com/en/docs/claude-code/overview}.
+  \item \textbf{Learn Git Branching}, exercícios visuais e interativos de branch e merge, em português: \url{https://learngitbranching.js.org/?locale=pt_BR}.
+\end{itemize}
+
+\subsection*{Arquivos deste material}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily\footnotesize}l X@{}}
+\toprule
+apresentacao/apresentacao.pdf & os slides da capacitação \\
+apostila/apostila.pdf & esta apostila \\
+model/SYSTEM\_DOCUMENTATION.md & o prompt final (V4) de documentação \\
+roteiro\_versao\_01.md & o roteiro inicial, com os assuntos obrigatórios \\
+roteiro\_versão\_final.md & o roteiro final \\
+\bottomrule
+\end{tabularx}
+\end{center}

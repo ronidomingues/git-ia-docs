@@ -1,0 +1,259 @@
+\chapter{Problema 1: integrar um sistema já versionado ao GitLab institucional}
+\label{cap:problema1}
+
+Agora saímos da teoria. Este é um problema real, enfrentado no estágio.
+
+\section{O cenário}
+
+A instituição tem um GitLab empresarial restrito. Ao criar um repositório novo, ele já vem com:
+
+\begin{itemize}
+  \item uma branch \arq{main} criada;
+  \item um \arq{README.md} padrão;
+  \item regras institucionais;
+  \item a \arq{main} \textbf{protegida}: não aceita \cmd{git push} direto, só Merge Request.
+\end{itemize}
+
+Só que vários sistemas \textbf{já existiam} nos computadores, e alguns já tinham anos de histórico Git próprio. Era preciso levar esses sistemas para o GitLab \textbf{sem perder o histórico}.
+
+\section{Por que não funciona do jeito óbvio}
+
+São dois históricos que nasceram separados:
+
+\begin{center}
+\begin{tikzpicture}
+  \node[font=\small\bfseries\color{verdeMB}, anchor=west] at (-0.4,1.1) {REPOSITÓRIO LOCAL};
+  \foreach \l/\x in {A/0,B/1.6,C/3.2,D/4.8}{\node[commit=verdeMB] (\l) at (\x,0.4) {\l};}
+  \draw[hist=verdeMB] (A)--(B)--(C)--(D);
+  \node[font=\small\bfseries\color{azulMB}, anchor=west] at (-0.4,-0.8) {REPOSITÓRIO GITLAB};
+  \foreach \l/\x in {X/0,Y/1.6}{\node[commit] (\l) at (\x,-1.5) {\l};}
+  \draw[hist] (X)--(Y);
+  \node[font=\Large\color{vermelhoAlerta}] at (3.4,-1.5) {\faUnlink};
+  \node[font=\small, anchor=west] at (4,-1.5) {nenhum ancestral em comum};
+\end{tikzpicture}
+\end{center}
+
+O Git sabe juntar linhas que \textbf{nasceram de um mesmo ponto}. Entre \arq{A--B--C--D} e \arq{X--Y} não existe esse ponto. Por isso, um merge comum é recusado:
+
+\begin{saida}
+fatal: refusing to merge unrelated histories
+\end{saida}
+
+E um \cmd{git push} direto para a \arq{main} também é recusado, porque ela é protegida.
+
+\section{O objetivo}
+
+Transformar os dois históricos num só, sem perder nenhum commit:
+
+\begin{center}
+\begin{tikzpicture}
+  \foreach \l/\x in {A/0,B/1.6,C/3.2,D/4.8}{\node[commit=verdeMB] (\l) at (\x,1) {\l};}
+  \draw[hist=verdeMB] (A)--(B)--(C)--(D);
+  \foreach \l/\x in {X/0,Y/2.4}{\node[commit] (\l) at (\x,-1) {\l};}
+  \draw[hist] (X)--(Y);
+  \node[commitm] (M) at (6.8,0) {M};
+  \draw[hist=verdeMB] (D) to[out=0,in=135] (M);
+  \draw[hist] (Y) to[out=0,in=-135] (M);
+  \node[rotulo=verdeMB, anchor=west] at ([xshift=4mm]M.east) {desenvolvimento};
+\end{tikzpicture}
+\end{center}
+
+O commit \textbf{M} é um commit de merge que une os dois históricos. Depois dele, a branch \arq{desenvolvimento} contém a \arq{main} institucional, então um Merge Request para a \arq{main} passa a funcionar normalmente.
+
+\section{A solução, passo a passo}
+
+\subsection*{Passo 1 — Adicionar o repositório remoto}
+
+\begin{terminal}
+git remote add origin <URL_DO_REPOSITORIO>
+git remote -v
+\end{terminal}
+\begin{saida}
+origin    <URL_DO_REPOSITORIO> (fetch)
+origin    <URL_DO_REPOSITORIO> (push)
+\end{saida}
+
+Isso dá ao Git local um endereço remoto, chamado \arq{origin}. A URL aparece no botão \textbf{Code} (ou \textbf{Clone}) da página do projeto no GitLab.
+
+\subsection*{Passo 2 — Buscar as informações do remoto}
+
+\begin{terminal}
+git fetch origin
+\end{terminal}
+\begin{saida}
+From <URL_DO_REPOSITORIO>
+ * [new branch]      main       -> origin/main
+\end{saida}
+
+O \cmd{fetch} baixa o histórico do GitLab para uma referência de leitura chamada \arq{origin/main}, \textbf{sem mexer} na sua branch nem nos seus arquivos.
+
+\subsection*{Passo 3 — Renomear a branch local}
+
+\begin{terminal}
+git branch -m main desenvolvimento
+\end{terminal}
+
+A sua \arq{main} local vira \arq{desenvolvimento}. Isso evita confundi-la com a \arq{main} institucional, que é protegida e não pode receber push. Agora existem:
+
+\begin{center}
+\begin{tikzpicture}[l/.style={font=\small, anchor=west}]
+  \node[rotulo=verdeMB] at (0,0) {desenvolvimento}; \node[l] at (1.8,0) {o histórico original do sistema (A--D)};
+  \node[rotulo] at (-0.2,-0.8) {origin/main}; \node[l] at (1.8,-0.8) {o histórico institucional (X--Y)};
+\end{tikzpicture}
+\end{center}
+
+\begin{dica}
+Se a sua branch atual não se chama \arq{main}, use só \cmd{git branch -m desenvolvimento}, que renomeia a branch em que você está.
+\end{dica}
+
+\subsection*{Passo 4 — Unir os históricos}
+
+\begin{terminal}
+git merge --allow-unrelated-histories origin/main
+\end{terminal}
+
+O parâmetro \cmd{--allow-unrelated-histories} deve ser usado com consciência.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}XX@{}}
+\begin{tcolorbox}[base, colback=vermelhoClaro, colframe=vermelhoAlerta, boxrule=0.8pt]
+{\bfseries\color{vermelhoAlerta}\faTimes\; Ele NÃO significa}\\ \enquote{ignore todos os conflitos}.
+\end{tcolorbox}
+&
+\begin{tcolorbox}[base, colback=verdeClaro, colframe=verdeMB, boxrule=0.8pt]
+{\bfseries\color{verdeMB}\faCheck\; Ele significa}\\ \enquote{eu sei que esses históricos não têm ancestral comum e autorizo o Git a tentar integrá-los}.
+\end{tcolorbox}
+\end{tabularx}
+\end{center}
+
+Como os dois lados têm um \arq{README.md} diferente, surge um conflito:
+
+\begin{saida}
+Mesclagem automática de README.md
+CONFLITO (adicionar/adicionar): conflito de mesclagem em README.md
+Automatic merge failed; fix conflicts and then commit the result.
+\end{saida}
+
+\subsection*{Passo 5 — Resolver o conflito}
+
+\begin{terminal}
+git status
+\end{terminal}
+\begin{saida}
+Caminhos não mesclados:
+  (usar "git add <arquivo>..." para marcar resolução)
+    ambos adicionaram:   README.md
+\end{saida}
+
+Aqui entra a parte que mais causa erro: \textbf{\texttt{ours} e \texttt{theirs}}.
+
+\begin{center}
+\begin{tikzpicture}
+  \node[commitm, minimum size=13mm, font=\bfseries\color{azulMB}] (m) at (0,0) {merge};
+  \node[caixa=verdeMB, text width=4.3cm] (o) at (-3.1,-2.2) {\textbf{OURS} (\enquote{nosso})\\ \small o lado da branch em que \textbf{você está} no momento do merge\\ \scriptsize aqui: \texttt{desenvolvimento}};
+  \node[caixa, text width=4.3cm] (t) at (3.1,-2.2) {\textbf{THEIRS} (\enquote{deles})\\ \small o lado da branch que \textbf{está sendo incorporada}\\ \scriptsize aqui: \texttt{origin/main}};
+  \draw[setafina] (m) -- (o); \draw[setafina] (m) -- (t);
+\end{tikzpicture}
+\end{center}
+
+No nosso caso, queríamos manter o README do sistema, que está na branch em que estamos. Então:
+
+\begin{terminal}
+git restore --ours README.md
+# forma tradicional, com o mesmo efeito:
+git checkout --ours README.md
+\end{terminal}
+
+Se quiséssemos manter o README institucional:
+
+\begin{terminal}
+git restore --theirs README.md
+# ou: git checkout --theirs README.md
+\end{terminal}
+
+\begin{atencao}[\texttt{ours} não é \enquote{o do meu computador}]
+\texttt{ours} significa \textbf{o lado correspondente à branch atual durante aquele merge}. \texttt{theirs} é o outro lado. Os dois arquivos estão no seu computador. Interpretar errado faz você preservar a versão errada sem perceber.
+\end{atencao}
+
+\begin{atencao}[No rebase, os papéis se invertem]
+Durante um \cmd{git rebase}, \texttt{ours} passa a ser a branch \emph{sobre a qual} você está reaplicando os commits, e \texttt{theirs} são os seus próprios commits. Nesta solução usamos \cmd{merge}, então vale a regra de cima. Se um dia usar rebase, confira antes.
+\end{atencao}
+
+\begin{dica}[E se eu quiser os dois READMEs?]
+Você não precisa escolher um lado. Abra o \arq{README.md}, junte à mão as partes que interessam dos dois, apague os marcadores \texttt{<<<<<<<}, \texttt{=======} e \texttt{>>>>>>>}, e siga para o passo 6.
+\end{dica}
+
+\subsection*{Passo 6 — Registrar a resolução}
+
+\begin{terminal}
+git add README.md
+git commit
+\end{terminal}
+
+Sem \cmd{-m}, o Git abre um editor com a mensagem \enquote{Merge remote-tracking branch 'origin/main' into desenvolvimento} já preenchida. Salve e feche. Este é o commit \textbf{M}: o histórico agora está integrado.
+
+\begin{terminal}
+git log --oneline --graph --all
+\end{terminal}
+\begin{saida}
+*   89647ff Merge remote-tracking branch 'origin/main' into desenvolvimento
+|\
+| * 4738004 Initial commit
+* 3ee51ff Ajuste
+* 40d59e6 Primeira versão
+\end{saida}
+
+\subsection*{Passo 7 — Publicar a nova branch}
+
+\begin{terminal}
+git push origin desenvolvimento
+\end{terminal}
+\begin{saida}
+ * [new branch]      desenvolvimento -> desenvolvimento
+\end{saida}
+
+No GitLab passam a existir, lado a lado, a \arq{main} (intocada e protegida) e a \arq{desenvolvimento} (o sistema com o histórico integrado).
+
+\subsection*{Passo 8 — Abrir o Merge Request}
+
+Este é o ponto final de todo o processo. Abra um Merge Request de \arq{desenvolvimento} para \arq{main}, pela interface web (capítulo \ref{cap:gitlab}) ou pelo terminal:
+
+\begin{terminal}
+glab mr create -s desenvolvimento -b main --title "Integra o sistema ao repositório institucional"
+\end{terminal}
+
+Como os dois históricos agora são relacionados e o conflito já foi tratado localmente, o merge \textbf{não é mais recusado}. A aprovação fica com quem tem permissão no repositório, conforme as regras do projeto.
+
+\section{Resumo em oito linhas}
+
+\begin{terminal}
+git remote add origin <URL_DO_REPOSITORIO>          # 1. conectar
+git fetch origin                                     # 2. baixar
+git branch -m main desenvolvimento                   # 3. renomear
+git merge --allow-unrelated-histories origin/main    # 4. unir
+git restore --ours README.md                         # 5. decidir o conflito
+git add README.md && git commit                      # 6. registrar
+git push origin desenvolvimento                      # 7. publicar
+glab mr create -s desenvolvimento -b main            # 8. pedir a integração
+\end{terminal}
+
+\section{Erros que podem aparecer}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\ttfamily\footnotesize}p{5.6cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textrm{\textbf{Mensagem}} & \textbf{O que fazer} \\
+\midrule
+fatal: refusing to merge unrelated histories & faltou o \cmd{--allow-unrelated-histories} no passo 4 \\
+error: remote origin already exists. & o projeto já tem um \arq{origin}. Confira com \cmd{git remote -v}; para trocar a URL, use \cmd{git remote set-url origin <URL>} \\
+remote: GitLab: You are not allowed to push code to protected branches on this project. & você tentou enviar para a \arq{main} protegida. Envie a \arq{desenvolvimento} e abra um Merge Request \\
+error: Committing is not possible because you have unmerged files. & ainda há conflito sem resolver. Rode \cmd{git status}, resolva e faça \cmd{git add} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{dica}
+Quer treinar isso sem servidor nenhum? O exercício 4.1 (o desafio) do capítulo \ref{cap:exercicios} simula o GitLab institucional com uma pasta do seu computador e reproduz o caso inteiro.
+\end{dica}

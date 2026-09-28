@@ -1,0 +1,251 @@
+\chapter{Exercícios práticos}
+\label{cap:exercicios}
+
+Os exercícios seguem a ordem da capacitação. As partes 1 e 4 funcionam só com o Git instalado, sem internet e sem servidor. A parte 2 precisa de acesso a um GitLab. A parte 3 precisa de um agente de IA e de um projeto que você possa usar.
+
+\begin{dica}
+Faça os exercícios numa pasta de treino, fora de qualquer projeto real. Se algo der errado, apague a pasta e comece de novo: é para isso que ela existe.
+\end{dica}
+
+% -----------------------------------------------------------------------------
+\section{Parte 1 — Git no seu computador}
+
+\begin{exercicio}{1.1 — Primeiro repositório e primeiro commit}
+\begin{enumerate}
+  \item Crie um repositório local.
+  \item Crie um arquivo.
+  \item Execute \cmd{git add}.
+  \item Execute \cmd{git commit}.
+\end{enumerate}
+\end{exercicio}
+
+\begin{terminal}
+mkdir exercicio-git
+cd exercicio-git
+git init -b main
+echo "Olá, Git!" > saudacao.txt
+git status
+git add saudacao.txt
+git commit -m "Cria a saudação"
+\end{terminal}
+
+\begin{verifique}
+\cmd{git log --oneline} mostra uma linha com \enquote{Cria a saudação}, e \cmd{git status} diz que não há nada a submeter.
+\end{verifique}
+
+\begin{exercicio}{1.2 — Branch, alteração e merge}
+\begin{enumerate}\setcounter{enumi}{4}
+  \item Crie uma branch.
+  \item Altere o arquivo.
+  \item Crie outro commit.
+  \item Faça o merge na \arq{main}.
+\end{enumerate}
+\end{exercicio}
+
+\begin{terminal}
+git switch -c feature/despedida
+echo "Até logo!" >> saudacao.txt       # >> acrescenta uma linha no fim
+git commit -am "Adiciona a despedida"  # -a prepara os arquivos já acompanhados
+git switch main
+git merge feature/despedida
+cat saudacao.txt
+\end{terminal}
+
+\begin{verifique}
+O merge diz \enquote{Fast-forward} e o arquivo tem duas linhas: \enquote{Olá, Git!} e \enquote{Até logo!}.
+\end{verifique}
+
+\begin{exercicio}{1.3 — Simular e resolver um conflito}
+\begin{enumerate}\setcounter{enumi}{8}
+  \item Simule um conflito.
+  \item Resolva o conflito.
+\end{enumerate}
+A ideia é mudar \textbf{a mesma linha} de formas diferentes em duas branches.
+\end{exercicio}
+
+\begin{terminal}
+# na branch nova, a saudação fica formal
+git switch -c feature/formal
+printf "Prezados, bom dia!\nAté logo!\n" > saudacao.txt
+git commit -am "Deixa a saudação formal"
+
+# na main, a mesma linha fica informal
+git switch main
+printf "E aí, pessoal!\nAté logo!\n" > saudacao.txt
+git commit -am "Deixa a saudação informal"
+
+# agora junte as duas
+git merge feature/formal
+\end{terminal}
+\begin{saida}
+Mesclagem automática de saudacao.txt
+CONFLITO (conteúdo): conflito de mesclagem em saudacao.txt
+Automatic merge failed; fix conflicts and then commit the result.
+\end{saida}
+
+Abra \arq{saudacao.txt} num editor de texto. Você vai ver os marcadores explicados na seção \ref{sec:conflitos}. Escolha a versão que fica (ou escreva uma terceira), apague os marcadores, salve e registre:
+
+\begin{terminal}
+git add saudacao.txt
+git commit -m "Resolve o conflito da saudação"
+git log --oneline --graph --all
+\end{terminal}
+\begin{saida}
+*   757aae3 Resolve o conflito da saudação
+|\
+| * c2524a8 Deixa a saudação formal
+* | a41aded Deixa a saudação informal
+|/
+* afe16bb Adiciona a despedida
+* 4203776 Cria a saudação
+\end{saida}
+
+\begin{verifique}
+O desenho do \cmd{git log --graph} mostra as duas linhas se separando e se juntando de novo no commit de resolução. Os códigos dos commits no seu computador serão outros.
+\end{verifique}
+
+% -----------------------------------------------------------------------------
+\section{Parte 2 — GitLab}
+
+\begin{exercicio}{2.1 — Um Merge Request completo}
+\begin{enumerate}
+  \item Crie ou use um projeto no GitLab.
+  \item Crie uma branch.
+  \item Faça uma alteração.
+  \item Faça \cmd{push}.
+  \item Crie um Merge Request.
+  \item Revise a alteração.
+  \item Faça o merge.
+\end{enumerate}
+\end{exercicio}
+
+\begin{terminal}
+git clone <URL_DO_PROJETO_DE_TREINO>
+cd <pasta-do-projeto>
+git switch -c exercicio/meu-nome
+echo "Treinamento de Git na Marinha" >> README.md
+git add README.md
+git commit -m "Registra o treinamento no README"
+git push origin exercicio/meu-nome
+\end{terminal}
+
+Depois, no navegador:
+
+\begin{enumerate}
+  \item abra o projeto e clique em \textbf{Create merge request} (ou vá em \textbf{Merge requests \faChevronRight\ New merge request});
+  \item confira: origem \arq{exercicio/meu-nome}, destino \arq{main};
+  \item escreva um título e uma descrição e crie o MR;
+  \item abra a aba \textbf{Changes} e deixe um comentário numa linha;
+  \item peça a um colega para aprovar e faça o merge (se o projeto permitir).
+\end{enumerate}
+
+\begin{dica}[Pelo terminal]
+Os passos no navegador podem ser trocados por \cmd{glab mr create -b main}, \cmd{glab mr view} e \cmd{glab mr merge} (capítulo \ref{cap:glab}).
+\end{dica}
+
+\begin{verifique}
+O MR aparece como \enquote{Merged}, e a linha nova está no \arq{README.md} da \arq{main}.
+\end{verifique}
+
+% -----------------------------------------------------------------------------
+\section{Parte 3 — IA}
+
+\begin{atencao}[Escolha bem o projeto]
+Use um projeto pequeno, \textbf{pessoal ou de código aberto}. Não use código institucional sem autorização.
+\end{atencao}
+
+\begin{exercicio}{3.1 — Descoberta com um agente de IA}
+Escolha um pequeno projeto existente e peça ao agente:
+\begin{enumerate}
+  \item realizar descoberta somente leitura;
+  \item identificar tecnologias;
+  \item identificar a arquitetura;
+  \item identificar dependências;
+  \item identificar funcionalidades;
+  \item identificar problemas;
+  \item gerar documentação;
+  \item apresentar dúvidas e pontos que exigem validação humana.
+\end{enumerate}
+\end{exercicio}
+
+Um ponto de partida é o prompt abaixo. Ele é uma \textbf{versão reduzida}, escrita para este exercício, que aproveita as travas do prompt final: somente leitura, nunca inventar, parar e perguntar.
+
+\begin{terminalt}{· PROMPT DE EXEMPLO}
+Você vai analisar este projeto. Siga estas regras sem exceção:
+
+1. MODO SOMENTE LEITURA: não altere, não apague e não renomeie nenhum
+   arquivo, e não faça commits. Você só pode criar arquivos em docs/.
+2. NUNCA INVENTE: todo fato precisa de evidência (arquivo e linha).
+   O que não puder confirmar, marque como DESCONHECIDO, INFERIDO ou
+   REQUER VALIDAÇÃO.
+3. PARE E PERGUNTE: se encontrar contradição, senha, token, dado pessoal
+   ou algo que exija decisão humana, pare e me relate antes de seguir.
+4. IDIOMA: escreva tudo em português brasileiro.
+
+Tarefa:
+a) Crie docs/DISCOVERY.md com a estrutura de pastas, as tecnologias e
+   as dependências encontradas.
+b) Crie docs/ARQUITETURA.md explicando os componentes e como se
+   comunicam, com um diagrama em texto.
+c) Crie docs/FUNCIONALIDADES.md listando o que o sistema faz.
+d) Crie docs/PROBLEMAS.md com defeitos, riscos e dívida técnica.
+e) Termine com uma lista de perguntas que eu preciso validar.
+\end{terminalt}
+
+\begin{exercicio}{3.2 — Validar o que a IA produziu}
+Pegue três afirmações da documentação gerada e confira cada uma no código. Anote: estava certa, errada ou incompleta? Responda também às perguntas que o agente deixou no item (e).
+\end{exercicio}
+
+\begin{verifique}
+\cmd{git status} mostra \textbf{só} arquivos novos em \arq{docs/}. Se aparecer qualquer outro arquivo modificado, o agente desrespeitou a regra 1: use \cmd{git diff} para ver o que mudou e \cmd{git restore} para desfazer.
+\end{verifique}
+
+% -----------------------------------------------------------------------------
+\section{Parte 4 — Desafio: reproduzir o Problema 1}
+
+\begin{exercicio}{4.1 — O caso real, sem servidor}
+Simule o GitLab institucional com um repositório \enquote{vazio de trabalho} (\emph{bare}) numa pasta do seu computador, com a \arq{main} e o README padrão. Depois, integre a ele um sistema que já tem histórico próprio, seguindo os oito passos do capítulo \ref{cap:problema1}.
+\end{exercicio}
+
+\textbf{Preparação: o \enquote{GitLab} de mentira.}
+
+\begin{terminal}
+mkdir desafio && cd desafio
+git init --bare -b main gitlab.git       # faz o papel do servidor
+git clone gitlab.git instituicao
+cd instituicao
+echo "# Projeto (README padrão da instituição)" > README.md
+git add README.md
+git commit -m "Initial commit"
+git push origin main
+cd ..
+\end{terminal}
+
+\textbf{Preparação: o sistema que já existia.}
+
+\begin{terminal}
+mkdir sistema && cd sistema
+git init -b main
+echo "# Sistema de Controle" > README.md
+echo "print('ola')" > app.py
+git add README.md app.py
+git commit -m "Primeira versão"
+echo "x = 1" >> app.py
+git commit -am "Ajuste"
+\end{terminal}
+
+\textbf{Agora é com você.} Ainda dentro de \arq{sistema/}, aplique os oito passos. Como o \enquote{servidor} é uma pasta, a URL é o caminho dela: \arq{../gitlab.git}. O passo 8 (Merge Request) não existe numa pasta, então pare no passo 7.
+
+\begin{enumerate}
+  \item Antes do passo 4, tente \cmd{git merge origin/main} sem o parâmetro. Qual mensagem aparece? Por quê?
+  \item No passo 5, mantenha o README do \textbf{sistema}. Qual comando você usou: \cmd{--ours} ou \cmd{--theirs}?
+  \item Depois do passo 7, rode \cmd{git log --oneline --graph --all}. Onde está o commit que une os dois históricos?
+\end{enumerate}
+
+\begin{tcolorbox}[base, colback=cinzaSuave, colframe=cinzaSuave, title={\faKey\enspace Respostas}, coltitle=azulMB, attach title to upper={\\[2pt]}]
+\begin{enumerate}
+  \item \texttt{fatal: refusing to merge unrelated histories}. Os dois repositórios nasceram separados e não têm ancestral comum.
+  \item \cmd{git restore --ours README.md}: durante o merge você está na branch \arq{desenvolvimento}, que tem o README do sistema.
+  \item No topo: o commit \enquote{Merge remote-tracking branch 'origin/main' into desenvolvimento}, com duas linhas chegando nele. Uma traz \enquote{Primeira versão} e \enquote{Ajuste}, a outra traz \enquote{Initial commit}.
+\end{enumerate}
+\end{tcolorbox}

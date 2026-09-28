@@ -1,0 +1,119 @@
+% =============================================================================
+% Apostila-guia — Git, GitLab e IA aplicada à Engenharia de Software
+% Compilar com:  latexmk -xelatex apostila.tex
+% =============================================================================
+\documentclass[11pt,a4paper,oneside,openany]{book}
+\input{../estilo/marinha-comum.tex}
+\usepackage{polyglossia}
+\setdefaultlanguage[variant=brazilian]{portuguese}
+\usepackage[top=28mm,bottom=25mm,left=25mm,right=22mm,headheight=14pt,headsep=10mm]{geometry}
+\usepackage{microtype}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{dirtree}
+\usepackage[most]{tcolorbox}
+\usepackage[hidelinks,unicode]{hyperref}
+\hypersetup{pdftitle={Git, GitLab e IA aplicada à Engenharia de Software — Apostila},
+            pdfauthor={Ronivaldo D. Andrade}, pdfsubject={Capacitação interna — Marinha do Brasil}}
+\urlstyle{same}
+
+\color{cinzaTexto}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1pt}
+\linespread{1.12}
+\setlist{itemsep=2pt, topsep=4pt}
+\setlist[itemize,1]{label={\color{ouroMB}\small$\blacksquare$}}
+\setlist[itemize,2]{label={\color{verdeMB}\scriptsize$\blacktriangleright$}}
+\setlist[enumerate,1]{label={\color{azulMB}\bfseries\arabic*.}}
+
+% ---------- Títulos -----------------------------------------------------------
+\titleformat{\chapter}[display]
+  {\color{azulMB}\raggedright\hyphenpenalty=10000}
+  {\begin{tikzpicture}\node[inner sep=0pt, text=ouroMB, font=\titulofonte\fontsize{64}{64}\selectfont]{\thechapter};
+   \fill[ouroMB] (0.05,-0.35) rectangle ++(2.6,0.12);\end{tikzpicture}}
+  {2mm}
+  {\titulofonte\fontsize{34}{36}\selectfont\MakeUppercase}
+  [\vspace{1mm}]
+\titleformat{name=\chapter,numberless}[display]
+  {\color{azulMB}}{}{0pt}
+  {\begin{tikzpicture}\fill[ouroMB] (0,0) rectangle ++(2.6,0.12);\end{tikzpicture}\\[3mm]\titulofonte\fontsize{34}{36}\selectfont\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-6mm}{8mm}
+\titleformat{\section}
+  {\color{azulMB}\titulofonte\fontsize{21}{23}\selectfont}
+  {\colorbox{azulMB}{\textcolor{white}{\,\thesection\,}}}{3mm}{\MakeUppercase}
+\titlespacing*{\section}{0pt}{6mm}{2mm}
+\titleformat{\subsection}
+  {\color{azulMB}\large\bfseries}{\color{verdeMB}\thesubsection}{2.5mm}{}
+\titlespacing*{\subsection}{0pt}{4mm}{1mm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+% ---------- Cabeçalho e rodapé -------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\fancyhead[L]{\footnotesize\color{azulMedio}\textsc{\leftmark}}
+\fancyhead[R]{\marca{13}}
+\fancyfoot[L]{\scriptsize\color{azulMedio}Git, GitLab e IA aplicada à Engenharia de Software \,·\, Apostila \,·\, Marinha do Brasil}
+\fancyfoot[R]{\begin{tikzpicture}[baseline=(n.base)]\node[fill=azulMB, text=white, font=\footnotesize\bfseries, inner sep=3pt, minimum width=8mm](n){\thepage};\end{tikzpicture}}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[R]{\begin{tikzpicture}[baseline=(n.base)]\node[fill=azulMB, text=white, font=\footnotesize\bfseries, inner sep=3pt, minimum width=8mm](n){\thepage};\end{tikzpicture}}}
+
+% ---------- Caixas (tcolorbox) ------------------------------------------------
+\tcbuselibrary{listings,skins,breakable}
+\tcbset{base/.style={enhanced, breakable, arc=2pt, boxrule=0pt, left=9pt, right=9pt, top=6pt, bottom=6pt,
+  fonttitle=\bfseries\small, coltitle=white, before skip=8pt, after skip=10pt}}
+\newtcolorbox{conceito}[1][]{base, colback=azulClaro, colframe=azulMB, borderline west={3pt}{0pt}{azulMB},
+  title={\faBookOpen\enspace #1}, attach title to upper={\\[2pt]}, coltitle=azulMB}
+\newtcolorbox{atencao}[1][Atenção]{base, colback=vermelhoClaro, colframe=vermelhoAlerta, borderline west={3pt}{0pt}{vermelhoAlerta},
+  title={\faExclamationTriangle\enspace #1}, attach title to upper={\\[2pt]}, coltitle=vermelhoAlerta}
+\newtcolorbox{dica}[1][Dica]{base, colback=verdeClaro, colframe=verdeMB, borderline west={3pt}{0pt}{verdeMB},
+  title={\faLightbulb\enspace #1}, attach title to upper={\\[2pt]}, coltitle=verdeMB}
+\newtcolorbox{analogia}[1][Analogia]{base, colback=ouroClaro, colframe=ouroMB, borderline west={3pt}{0pt}{ouroMB},
+  title={\faComments\enspace #1}, attach title to upper={\\[2pt]}, coltitle=azulMB}
+\newtcolorbox{exercicio}[2][]{base, colback=white, colframe=azulMB, boxrule=0.8pt, arc=3pt,
+  title={\faDumbbell\enspace Exercício #2}, colbacktitle=azulMB, #1}
+\newtcolorbox{verifique}{base, colback=cinzaSuave, colframe=cinzaSuave, title={\faCheckCircle\enspace Como saber se deu certo}, coltitle=verdeMB,
+  attach title to upper={\\[2pt]}}
+
+\tcbset{terminalbox/.style={base, colback=cinzaSuave, colframe=azulMB, boxrule=0pt, toprule=14pt,
+  listing only, listing options={style=terminal}, left=6pt,
+  overlay={\node[anchor=north west, text=white, font=\tiny\bfseries, inner sep=4pt] at (frame.north west) {\faTerminal\;TERMINAL #1};}},
+  saidabox/.style={base, colback=white, colframe=azulMedio!50, boxrule=0.6pt, toprule=14pt,
+  listing only, listing options={style=saida}, left=6pt,
+  overlay={\node[anchor=north west, text=white, font=\tiny\bfseries, inner sep=4pt] at (frame.north west) {\faDesktop\;SAÍDA #1};}}}
+% Sem argumento opcional: o "[" seria procurado já na linha do código e quebraria
+% linhas que começam com "#". Para rótulo extra, use as versões com "t".
+\newtcblisting{terminal}{terminalbox={}}
+\newtcblisting{terminalt}[1]{terminalbox={#1}}
+\newtcblisting{saida}{saidabox={}}
+\newtcblisting{saidat}[1]{saidabox={#1}}
+\lstset{style=terminal}
+
+\newcommand{\cmd}[1]{\texttt{\color{azulMB}#1}}
+\newcommand{\arq}[1]{\texttt{#1}}
+\newcommand{\termo}[1]{\textbf{\color{azulMB}#1}}
+\newcommand{\tecla}[1]{\tikz[baseline=(k.base)]\node[draw=azulMedio, rounded corners=2pt, inner sep=2pt, font=\footnotesize\ttfamily](k){#1};}
+
+\begin{document}
+\frontmatter
+\input{capitulos/00-capa}
+\tableofcontents
+\mainmatter
+\input{capitulos/01-antes-de-comecar}
+\input{capitulos/02-git}
+\input{capitulos/03-gitlab}
+\input{capitulos/04-glab}
+\input{capitulos/05-problema-1}
+\input{capitulos/06-problema-2}
+\input{capitulos/07-exercicios}
+\input{capitulos/08-para-memorizar}
+\appendix
+\input{capitulos/09-apendices}
+\end{document}

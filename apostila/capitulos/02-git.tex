@@ -1,0 +1,266 @@
+\chapter{Git: o controle de versão}
+\label{cap:git}
+
+\begin{conceito}[Git]
+O Git é um \textbf{sistema distribuído de controle de versão}. Ele registra a evolução de um projeto ao longo do tempo. \enquote{Distribuído} quer dizer que cada pessoa tem uma cópia completa do histórico no próprio computador: dá para trabalhar sem servidor e sem internet.
+\end{conceito}
+
+\begin{center}
+\includegraphics[height=12mm]{\imagens/git-logo.pdf}
+\end{center}
+
+\section{Repositório e commit}
+
+Um \termo{repositório} é uma pasta cujo histórico o Git está acompanhando. O Git guarda esse histórico numa subpasta escondida chamada \arq{.git}. Não mexa nela à mão.
+
+Um \termo{commit} é uma \enquote{fotografia} do projeto num momento, acompanhada de quem a tirou, quando e por quê. Os commits se encadeiam e formam o \termo{histórico}:
+
+\begin{center}
+\begin{tikzpicture}
+  \foreach \l/\x/\m in {A/0/Cria o projeto, B/2.6/Adiciona o login, C/5.2/Corrige o relatório, D/7.8/Atualiza o README}{
+    \node[commit] (\l) at (\x,0) {\l};
+    \node[font=\scriptsize, text width=2.3cm, align=center, below=2mm of \l] {\m};}
+  \draw[hist] (A)--(B)--(C)--(D);
+  \node[rotulo=verdeMB, above=4mm of D] (h) {main};
+  \draw[setafina, verdeMB] (h) -- (D);
+\end{tikzpicture}
+\end{center}
+
+Cada commit recebe um identificador único, um código como \arq{4203776}. Você vai ver esses códigos em todo lugar.
+
+\section{As três áreas do Git}
+
+Esta é a ideia que mais ajuda a entender os comandos. Um arquivo passa por três lugares:
+
+\begin{center}
+\begin{tikzpicture}[a/.style={caixa, minimum width=3.7cm, minimum height=2.2cm, text width=3.4cm}]
+  \node[a] (w) at (0,0) {\textbf{Diretório de trabalho}\\[2pt]\scriptsize os arquivos como você os vê e edita};
+  \node[a=ouroMB!85!black] (s) at (5,0) {\textbf{Área de preparação}\\[2pt]\scriptsize (\emph{staging}) o que vai entrar no próximo commit};
+  \node[a=verdeMB] (r) at (10,0) {\textbf{Repositório}\\[2pt]\scriptsize o histórico de commits, guardado em \texttt{.git}};
+  \draw[seta] (w.north east) to[bend left=25] node[above, font=\small\ttfamily] {git add} (s.north west);
+  \draw[seta] (s.north east) to[bend left=25] node[above, font=\small\ttfamily] {git commit} (r.north west);
+  \draw[seta, azulMedio] (r.south west) to[bend left=25] node[below, font=\small\ttfamily] {git restore / git switch} (w.south east |- r.south west);
+\end{tikzpicture}
+\end{center}
+
+\begin{analogia}
+É como preparar uma remessa. Você trabalha nos documentos na sua mesa (diretório de trabalho). Separa numa caixa os que vão ser enviados (área de preparação, com \cmd{git add}). Lacra a caixa e registra o envio no livro de protocolo (repositório, com \cmd{git commit}). O livro guarda cada remessa para sempre.
+\end{analogia}
+
+\section{Os primeiros comandos}
+\label{sec:primeiro-repo}
+
+\begin{terminal}
+mkdir meu-projeto
+cd meu-projeto
+git init -b main          # transforma a pasta num repositório
+\end{terminal}
+
+\begin{dica}[Git anterior à versão 2.28]
+Se o seu Git não aceitar \cmd{-b main}, use \cmd{git init} e, logo depois do primeiro commit, \cmd{git branch -m main}.
+\end{dica}
+
+Crie um arquivo e pergunte ao Git o que ele vê:
+
+\begin{terminal}
+echo "Olá, Git!" > saudacao.txt
+git status
+\end{terminal}
+\begin{saida}
+No ramo main
+
+No commits yet
+
+Arquivos não monitorados:
+  (utilize "git add <arquivo>..." para incluir o que será submetido)
+    saudacao.txt
+\end{saida}
+
+O Git viu o arquivo, mas ainda não o acompanha. Prepare e registre:
+
+\begin{terminal}
+git add saudacao.txt
+git commit -m "Cria a saudação"
+\end{terminal}
+\begin{saida}
+[main (root-commit) 4203776] Cria a saudação
+ 1 file changed, 1 insertion(+)
+ create mode 100644 saudacao.txt
+\end{saida}
+
+\begin{dica}[Boas mensagens de commit]
+Escreva o \textbf{porquê} da mudança, de um jeito que outra pessoa entenda daqui a um ano. \enquote{Corrige o cálculo do total quando não há itens} é útil. \enquote{ajustes} não é.
+\end{dica}
+
+Para consultar o histórico:
+
+\begin{terminal}
+git log --oneline         # uma linha por commit
+git log --oneline --graph --all   # desenha as branches
+git diff                  # o que mudou e ainda não foi preparado
+\end{terminal}
+
+\section{Branches}
+
+\begin{conceito}[Branch]
+Uma \textbf{branch} (ramo) é uma \textbf{linha de desenvolvimento} dentro do histórico. Ela permite trabalhar numa mudança de forma isolada, sem mexer na linha principal, a \arq{main}.
+\end{conceito}
+
+\begin{center}
+\begin{tikzpicture}
+  \node[commit] (a) at (0,0) {};  \node[commit] (b) at (1.5,0) {};
+  \node[commit] (c) at (3,0) {}; \node[commit] (d) at (4.5,0) {}; \node[commit] (e) at (7.5,0) {};
+  \draw[hist] (a)--(b)--(c)--(d)--(e);
+  \node[commit=verdeMB] (f1) at (3,1.4) {}; \node[commit=verdeMB] (f2) at (4.5,1.4) {}; \node[commit=verdeMB] (f3) at (6,1.4) {};
+  \draw[hist=verdeMB] (b) to[out=0,in=180] (f1); \draw[hist=verdeMB] (f1)--(f2)--(f3);
+  \draw[hist=verdeMB, dashed] (f3) to[out=0,in=180] (e);
+  \node[commit=ouroMB!85!black] (g1) at (4.5,-1.4) {}; \node[commit=ouroMB!85!black] (g2) at (6,-1.4) {};
+  \draw[hist=ouroMB!85!black] (c) to[out=0,in=180] (g1); \draw[hist=ouroMB!85!black] (g1)--(g2);
+  \node[rotulo, anchor=west] at ([xshift=2mm]e.east) {main};
+  \node[rotulo=verdeMB, anchor=west] at ([xshift=2mm]f3.east) {feature/login};
+  \node[rotulo=ouroMB!85!black, anchor=west] at ([xshift=2mm]g2.east) {bugfix/autenticacao};
+\end{tikzpicture}
+\end{center}
+
+Branches servem para desenvolver funcionalidades isoladamente, corrigir bugs, experimentar, trabalhar em paralelo, evitar alterações diretas na \arq{main} e permitir revisão antes da integração. É comum usar prefixos que dizem o tipo do trabalho: \arq{feature/}, \arq{bugfix/}, \arq{hotfix/}.
+
+\begin{atencao}[Branch não é cópia]
+Branch \textbf{não} é uma cópia do projeto. É só um \textbf{ponteiro} que aponta para um commit e anda para a frente a cada novo commit. Por isso criar uma branch é instantâneo, mesmo num projeto enorme.
+\end{atencao}
+
+\begin{terminal}
+git branch                        # lista as branches (* marca a atual)
+git switch -c feature/despedida   # cria e já entra na nova branch
+git switch main                   # volta para a main
+\end{terminal}
+
+\section{Merge: juntando linhas de trabalho}
+
+O \termo{merge} traz as mudanças de uma branch para a branch em que você está.
+
+\begin{terminal}
+git switch main
+git merge feature/despedida
+\end{terminal}
+\begin{saida}
+Updating 4203776..afe16bb
+Fast-forward
+ saudacao.txt | 1 +
+ 1 file changed, 1 insertion(+)
+\end{saida}
+
+\enquote{Fast-forward} quer dizer que a \arq{main} não tinha nada novo, então o Git só avançou o ponteiro. Quando as duas branches andaram, o Git cria um \termo{commit de merge}, que tem dois \enquote{pais} e une as duas linhas.
+
+\section{Conflitos}
+\label{sec:conflitos}
+
+\begin{conceito}[Conflito]
+Um conflito acontece quando duas branches mudaram \textbf{a mesma região do mesmo arquivo} de formas diferentes, e o Git não tem como saber qual versão vale. Conflito \textbf{não é erro}: é o Git pedindo uma decisão humana.
+\end{conceito}
+
+Exemplo: na \arq{main}, a primeira linha virou \enquote{E aí, pessoal!}. Na \arq{feature/formal}, virou \enquote{Prezados, bom dia!}. Ao juntar:
+
+\begin{terminal}
+git merge feature/formal
+\end{terminal}
+\begin{saida}
+Mesclagem automática de saudacao.txt
+CONFLITO (conteúdo): conflito de mesclagem em saudacao.txt
+Automatic merge failed; fix conflicts and then commit the result.
+\end{saida}
+
+O Git escreve as duas versões dentro do arquivo, separadas por marcadores:
+
+\begin{saidat}{· CONTEÚDO DE saudacao.txt}
+<<<<<<< HEAD
+E aí, pessoal!
+=======
+Prezados, bom dia!
+>>>>>>> feature/formal
+Até logo!
+\end{saidat}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{0.9\linewidth}{@{}>{\ttfamily\color{azulMB}}l X@{}}
+\toprule
+<<<<<<< HEAD & início da versão da branch em que você está \\
+======= & separa as duas versões \\
+>>>>>>> feature/formal & fim da versão que está chegando \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Para resolver:
+
+\begin{enumerate}
+  \item abra o arquivo e deixe só o conteúdo que deve ficar (pode ser uma das versões ou uma combinação das duas);
+  \item apague as três linhas de marcadores;
+  \item marque como resolvido e registre:
+\end{enumerate}
+
+\begin{terminal}
+git add saudacao.txt
+git commit -m "Resolve o conflito da saudação"
+\end{terminal}
+
+\begin{dica}
+Se você se perdeu no meio de um merge, \cmd{git merge --abort} desfaz tudo e volta ao estado de antes do merge. Nada se perde.
+\end{dica}
+
+\section{Trabalhando com um repositório remoto}
+
+Até aqui tudo foi local. Para trabalhar em equipe, o repositório também fica num servidor, como o GitLab. Esse servidor é chamado de \termo{remoto}, e por convenção o principal se chama \arq{origin}.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{0.95\linewidth}{@{}>{\ttfamily\color{azulMB}}l X@{}}
+\toprule
+git clone <URL> & baixa um repositório remoto inteiro, já configurado \\
+git remote -v & mostra os remotos configurados \\
+git remote add origin <URL> & liga um repositório local a um remoto \\
+git fetch & baixa as novidades do remoto \textbf{sem} mexer nos seus arquivos \\
+git pull & baixa \textbf{e} já faz o merge na branch atual \\
+git push origin <branch> & envia os seus commits para o remoto \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{analogia}[fetch × pull]
+\cmd{git fetch} é olhar a caixa de correspondência e trazer as cartas para a mesa, sem abrir. \cmd{git pull} é trazer e já arquivar tudo na pasta. O \cmd{fetch} é mais seguro quando você quer ver antes o que chegou.
+\end{analogia}
+
+\section{Desfazendo coisas}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{0.95\linewidth}{@{}>{\ttfamily\color{azulMB}}l X@{}}
+\toprule
+git restore arquivo & descarta as mudanças \textbf{não preparadas} do arquivo \\
+git restore --staged arquivo & tira o arquivo da área de preparação, mantendo as mudanças \\
+git revert <commit> & cria um novo commit que desfaz outro (seguro em branch compartilhada) \\
+git merge --abort & cancela um merge em andamento \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{atencao}
+\cmd{git restore arquivo} apaga as mudanças que ainda não viraram commit. Não há como recuperá-las depois. Confira com \cmd{git diff} antes.
+\end{atencao}
+
+\section{Um aviso honesto}
+
+\begin{center}
+\begin{minipage}{0.3\linewidth}
+\includegraphics[width=\linewidth]{\imagens/xkcd-1597-git.png}
+\end{minipage}\hfill
+\begin{minipage}{0.64\linewidth}
+\small\itshape
+\enquote{Isto é o Git. Ele controla trabalho colaborativo em projetos por meio de um belo modelo distribuído de árvore da teoria dos grafos.}\\[2pt]
+\enquote{Legal. Como a gente usa?}\\[2pt]
+\enquote{Não faço ideia. Só decora estes comandos de terminal e digita para sincronizar. Se der erro, salva teu trabalho em outro lugar, apaga o projeto e baixa uma cópia nova.}\\[6pt]
+\upshape\footnotesize\color{azulMedio} xkcd \#1597, \enquote{Git}, de Randall Munroe (\url{https://xkcd.com/1597/}), licença CC BY-NC 2.5. Tradução livre.
+\end{minipage}
+\end{center}
+
+A tirinha é engraçada porque é verdade para muita gente. O objetivo deste capítulo foi o contrário: entender o \textbf{modelo} (commits, ponteiros, três áreas), para que os comandos façam sentido e você nunca precise apagar o projeto.

@@ -1,0 +1,84 @@
+% ---------- Capa ---------------------------------------------------------------
+\begin{titlepage}
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[azulMB] (current page.south west) rectangle (current page.north east);
+  \begin{scope}
+    \clip (current page.north west) rectangle ([yshift=-0.42\paperheight]current page.north east);
+    \node[anchor=north, inner sep=0pt] at (current page.north)
+      {\includegraphics[height=0.42\paperheight]{\imagens/ilha_das_cobras.jpg}};
+  \end{scope}
+  \fill[ouroMB] ([yshift=-0.42\paperheight]current page.north west) rectangle ([yshift=-0.42\paperheight-1.6mm]current page.north east);
+  \node[anchor=north west, text=ouroMB, font=\bfseries] (k) at ([xshift=22mm,yshift=-0.42\paperheight-16mm]current page.north west)
+    {CAPACITAÇÃO INTERNA \,·\, APOSTILA-GUIA};
+  \node[anchor=north west, text=white, align=left, inner xsep=0pt,
+        font=\titulofonte\fontsize{44}{46}\selectfont] (t) at ([yshift=-3mm]k.south west)
+    {GIT, GITLAB E IA APLICADA\\À ENGENHARIA DE SOFTWARE};
+  \node[anchor=north west, text=white!82!azulMB, align=left, inner xsep=0pt, text width=15cm,
+        font=\montlight\large] (s) at ([yshift=-4mm]t.south west)
+    {Do primeiro commit à documentação de sistemas legados com um agente de IA: um guia para quem está começando};
+  \node[anchor=south west, text=white, align=left, inner xsep=0pt, font=\normalsize] at ([xshift=22mm,yshift=22mm]current page.south west)
+    {\textbf{Ronivaldo D. Andrade}\\[2pt]
+     {\color{white!75!azulMB}\small Estagiário de Análise e Desenvolvimento de Sistemas}\\
+     {\color{white!75!azulMB}\small Marinha do Brasil}\\[6pt]
+     {\color{ouroMB}\small\bfseries Capacitação em 01/10/2026, das 10h às 11h}};
+  \node[anchor=south east, inner sep=0pt] at ([xshift=-20mm,yshift=22mm]current page.south east)
+    {\marca[white]{30}};
+\end{tikzpicture}
+\end{titlepage}
+
+% ---------- Sobre esta apostila -------------------------------------------------
+\chapter*{Sobre esta apostila}
+\markboth{Sobre esta apostila}{}
+
+Esta apostila acompanha a capacitação \textbf{\enquote{Git, GitLab e IA aplicada à Engenharia de Software}}, apresentada na Marinha do Brasil. A apresentação tem uma hora e é só expositiva. Aqui está tudo o que foi dito com mais calma, os detalhes que não cabem num slide e os \textbf{exercícios práticos}, para você aprender no seu ritmo.
+
+Ela foi escrita para quem \textbf{nunca usou Git}. Se você já usa, pule direto para os capítulos \ref{cap:problema1} e \ref{cap:problema2}, que contam os dois problemas reais resolvidos no estágio.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{0.92\linewidth}{@{}>{\bfseries\color{azulMB}}l X@{}}
+\toprule
+Capacitação & Git, GitLab e IA aplicada à Engenharia de Software \\
+Autor e instrutor & Ronivaldo D. Andrade \\
+Função & Estagiário de Análise e Desenvolvimento de Sistemas \\
+Organização & Marinha do Brasil \\
+Data da capacitação & 01/10/2026, das 10h às 11h \\
+Data de elaboração & 28/09/2026 \\
+Material complementar & Apresentação de slides (\arq{apresentacao/apresentacao.pdf}) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Como ler esta apostila}
+
+Ao longo do texto aparecem caixas coloridas. Cada cor tem um papel:
+
+\begin{conceito}[Conceito]
+Uma definição importante, para guardar.
+\end{conceito}
+\begin{analogia}
+Uma comparação com o dia a dia, para a ideia ficar concreta.
+\end{analogia}
+\begin{dica}
+Um atalho ou uma boa prática.
+\end{dica}
+\begin{atencao}
+Um erro comum ou um cuidado que evita dor de cabeça.
+\end{atencao}
+
+\begin{terminal}
+# Isto é um comando para digitar no terminal.
+# As linhas que começam com # são comentários: não precisa digitar.
+git status
+\end{terminal}
+
+\begin{saida}
+Isto é o que o computador responde. O texto exato pode variar
+conforme a versão e o idioma do seu Git.
+\end{saida}
+
+Quando um comando traz algo entre \arq{<sinais de menor e maior>}, como \arq{<URL\_DO\_REPOSITORIO>}, troque tudo, inclusive os sinais, pelo valor real.
+
+\begin{atencao}[Antes de usar IA com código da instituição]
+O capítulo \ref{cap:problema2} mostra como um agente de IA ajudou a documentar sistemas. Um agente desse tipo envia trechos do código para um serviço externo. \textbf{Só use com sistemas institucionais quando houver autorização e respeitando as normas de segurança da informação da sua OM.} Para praticar, use projetos pessoais ou de código aberto.
+\end{atencao}
