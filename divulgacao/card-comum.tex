@@ -1,0 +1,24 @@
+% Macros comuns aos cards de divulgação.
+\input{../estilo/marinha-comum.tex}
+\usepackage{polyglossia}
+\setdefaultlanguage[variant=brazilian]{portuguese}
+\pagestyle{empty}
+\usetikzlibrary{fadings}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\newcommand{\seta}{\raisebox{0.35ex}{\fontsize{22}{22}\selectfont\faLongArrowAltRight}}
+% \numero{coordenada}{número}{rótulo}
+\newcommand{\numero}[3]{%
+  \node[anchor=north west, text=ouroMB, font=\titulofonte\fontsize{40}{40}\selectfont] at (#1) {#2};
+  \node[anchor=north west, text=white, font=\small, text width=3.9cm] at ($(#1)+(0.05,-1.45)$) {#3};}
+% Mini grafo: dois históricos sem relação unidos por um merge
+\newcommand{\grafo}[1][1]{%
+  \begin{scope}[scale=#1, every node/.style={transform shape}]
+    \foreach \l/\x in {A/0,B/1.3,C/2.6,D/3.9}{\node[commit=verdeMB, fill=azulMB, font=\small\bfseries\color{white}] (\l) at (\x,0.9) {\l};}
+    \draw[hist=verdeMB] (A)--(B)--(C)--(D);
+    \foreach \l/\x in {X/0,Y/1.9}{\node[commit=white, fill=azulMB, font=\small\bfseries\color{white}] (\l) at (\x,-0.9) {\l};}
+    \draw[hist=white] (X)--(Y);
+    \node[commitm] (M) at (5.6,0) {M};
+    \draw[hist=verdeMB] (D) to[out=0,in=135] (M);
+    \draw[hist=white] (Y) to[out=0,in=-135] (M);
+  \end{scope}}

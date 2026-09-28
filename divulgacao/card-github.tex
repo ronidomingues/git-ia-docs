@@ -1,0 +1,24 @@
+% Card 2:1 para a prévia social do GitHub e posts com link (exportar em 1280x640).
+\documentclass{article}
+\usepackage[paperwidth=25.6cm,paperheight=12.8cm,margin=0pt]{geometry}
+\input{card-comum.tex}
+\begin{document}
+\begin{tikzpicture}[remember picture, overlay]
+  \begin{scope}
+    \clip ([xshift=12cm]current page.south west) rectangle (current page.north east);
+    \node[anchor=east, inner sep=0pt] at ([xshift=2cm]current page.east) {\includegraphics[height=12.8cm]{\imagens/ilha_das_cobras.jpg}};
+  \end{scope}
+  \fill[azulMB] (current page.north west) rectangle ([xshift=14.2cm]current page.south west);
+  \fill[azulMB, path fading=east] ([xshift=14.18cm]current page.north west) rectangle ([xshift=18.5cm]current page.south west);
+  \fill[ouroMB] (current page.south west) rectangle ([yshift=0.15cm]current page.south east);
+  \node[anchor=north west, inner sep=0pt] at ([xshift=1.2cm,yshift=-1cm]current page.north west) {\marca[white]{24}};
+  \node[anchor=north west, text=white, inner xsep=0pt, align=left, font=\titulofonte\fontsize{36}{37}\selectfont] (t) at ([xshift=1.2cm,yshift=-2.5cm]current page.north west)
+    {GIT, GITLAB E IA APLICADA\\À ENGENHARIA DE SOFTWARE};
+  \node[anchor=north west, text=white!80!azulMB, inner xsep=0pt, text width=12.6cm, align=left, font=\montlight\small] (s) at ([yshift=-3mm]t.south west)
+    {Slides, apostila e roteiro de falas sobre Git, GitLab Self-Managed, Claude Code e engenharia de prompts, a partir de dois problemas reais.};
+  \begin{scope}[shift={([xshift=1.6cm,yshift=3.2cm]current page.south west)}]\grafo[0.85]\end{scope}
+  \node[anchor=west, text=white, font=\scriptsize, text width=6cm, align=left] at ([xshift=7.2cm,yshift=3.2cm]current page.south west)
+    {\texttt{git merge --allow-unrelated-histories}\\[3pt]{\color{ouroMB}\bfseries 717 prompts reais · 5 versões · 105 páginas}};
+  \node[anchor=south west, text=ouroMB, font=\small\ttfamily] at ([xshift=1.2cm,yshift=0.8cm]current page.south west) {github.com/ronidomingues/git-ia-docs};
+\end{tikzpicture}
+\end{document}

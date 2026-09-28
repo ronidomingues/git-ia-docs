@@ -1,0 +1,33 @@
+% Card quadrado para o feed do LinkedIn (exportar em 1080x1080).
+\documentclass{article}
+\usepackage[paperwidth=20cm,paperheight=20cm,margin=0pt]{geometry}
+\input{card-comum.tex}
+\begin{document}
+\begin{tikzpicture}[remember picture, overlay]
+  \begin{scope}
+    \clip (current page.north west) rectangle ([yshift=-8.2cm]current page.north east);
+    \node[anchor=south, inner sep=0pt] at ([yshift=-8.9cm]current page.north) {\includegraphics[width=20cm]{\imagens/ilha_das_cobras.jpg}};
+  \end{scope}
+  \fill[azulMB] ([yshift=-8.2cm]current page.north west) rectangle (current page.south east);
+  \fill[azulMB, path fading=north] ([yshift=-5.4cm]current page.north west) rectangle ([yshift=-8.2cm]current page.north east);
+  \fill[azulMB, opacity=0.85, path fading=south] (current page.north west) rectangle ([yshift=-2.6cm]current page.north east);
+  \fill[ouroMB] ([yshift=-8.2cm]current page.north west) rectangle ([yshift=-8.35cm]current page.north east);
+  \node[anchor=north west, inner sep=0pt] at ([xshift=1.2cm,yshift=-0.75cm]current page.north west) {\marca[white]{26}};
+
+  \node[anchor=north west, text=ouroMB, font=\bfseries\small] (k) at ([xshift=1.2cm,yshift=-9.0cm]current page.north west)
+    {CAPACITAÇÃO \,·\, SLIDES \,·\, APOSTILA \,·\, ROTEIRO DE FALAS};
+  \node[anchor=north west, text=white, inner xsep=0pt, align=left, font=\titulofonte\fontsize{38}{39}\selectfont] (t) at ([yshift=-1mm]k.south west)
+    {GIT, GITLAB E IA APLICADA\\À ENGENHARIA DE SOFTWARE};
+  \node[anchor=north west, text=white!80!azulMB, inner xsep=0pt, text width=17.4cm, align=left, font=\montlight\normalsize] (s) at ([yshift=-3mm]t.south west)
+    {Dois problemas reais do meu estágio na Marinha do Brasil: unir históricos Git sem ancestral comum num GitLab com a \texttt{main} protegida, e documentar sistemas legados com um agente de IA.};
+
+  \coordinate (n) at ([xshift=1.2cm,yshift=-15.5cm]current page.north west);
+  \numero{n}{717}{prompts reais analisados}
+  \numero{$(n)+(3.9,0)$}{5}{versões do prompt, cada uma nascida de uma falha}
+  \numero{$(n)+(8.2,0)$}{53\%\,\seta\,25\%}{retrabalho estimado na documentação}
+  \numero{$(n)+(14.3,0)$}{105}{páginas de material aberto}
+
+  \node[anchor=south west, text=white, font=\small\bfseries] at ([xshift=1.2cm,yshift=0.8cm]current page.south west) {Ronivaldo D. Andrade};
+  \node[anchor=south east, text=ouroMB, font=\small\ttfamily] at ([xshift=-1.2cm,yshift=0.8cm]current page.south east) {github.com/ronidomingues/git-ia-docs};
+\end{tikzpicture}
+\end{document}
