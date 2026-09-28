@@ -1,0 +1,14 @@
+# Auxiliares do LaTeX (os PDFs são versionados)
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.xdv
+*.nav
+*.snm
+*.vrb
+*.listing
+*.synctex.gz
+.DS_Store
