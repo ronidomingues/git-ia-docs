@@ -1,0 +1,104 @@
+% =============================================================================
+% marinha-comum.tex — identidade visual compartilhada pela apresentação e pela
+% apostila da capacitação. Segue o Manual de Identidade Visual da Marinha do
+% Brasil (dez/2025): cores institucionais (p. 23) e tipografia (pp. 24-30).
+%
+% Compilar sempre com XeLaTeX (fontspec). Os caminhos são relativos à pasta
+% do documento (apresentacao/ ou apostila/).
+% =============================================================================
+
+% ---------- Caminhos ---------------------------------------------------------
+\newcommand{\raizcapacitacao}{..}
+\newcommand{\imagens}{\raizcapacitacao/assets/imagens}
+\newcommand{\fontes}{\raizcapacitacao/assets/fontes}
+
+% ---------- Cores institucionais (Manual, p. 23) -----------------------------
+\usepackage{xcolor}
+\usepackage{graphicx}
+\definecolor{azulMB}{HTML}{050F41}   % Azul Marinha  · Pantone 2768C
+\definecolor{ouroMB}{HTML}{FAB932}   % Amarelo Ouro  · Pantone 1235C
+\definecolor{verdeMB}{HTML}{079551}  % Verde Brasil  · Pantone 355C
+% Tons de apoio derivados das institucionais (fundos de caixas e diagramas)
+\colorlet{azulClaro}{azulMB!8}
+\colorlet{azulMedio}{azulMB!55}
+\colorlet{ouroClaro}{ouroMB!18}
+\colorlet{verdeClaro}{verdeMB!12}
+\definecolor{cinzaTexto}{HTML}{3A3F55}
+\definecolor{cinzaSuave}{HTML}{F3F4F8}
+\definecolor{vermelhoAlerta}{HTML}{B3261E}
+\colorlet{vermelhoClaro}{vermelhoAlerta!10}
+
+% ---------- Tipografia (Manual, pp. 24-30) -----------------------------------
+% Principal: Octin College (títulos) e alternativa Bebas Neue Pro são fontes
+% comerciais. Usamos a Bebas Neue livre (OFL), da mesma família de desenho,
+% nos títulos, e a Montserrat (tipografia de apoio oficial, OFL) no texto.
+\usepackage{fontspec}
+\setmainfont{Montserrat}[
+  Path=\fontes/montserrat/, Extension=.otf,
+  UprightFont=*-Regular, BoldFont=*-SemiBold,
+  ItalicFont=*-Italic, BoldItalicFont=*-SemiBoldItalic]
+\setsansfont{Montserrat}[
+  Path=\fontes/montserrat/, Extension=.otf,
+  UprightFont=*-Regular, BoldFont=*-SemiBold,
+  ItalicFont=*-Italic, BoldItalicFont=*-SemiBoldItalic]
+\setmonofont{FiraMono}[
+  Path=\fontes/fira-mono/, Extension=.otf,
+  UprightFont=*-Regular, BoldFont=*-Bold, Scale=0.9]
+\newfontfamily\titulofonte{BebasNeue-Regular}[
+  Path=\fontes/bebas-neue/, Extension=.ttf, LetterSpace=2.0]
+\newfontfamily\montblack{Montserrat-Black}[Path=\fontes/montserrat/, Extension=.otf]
+\newfontfamily\montlight{Montserrat-Light}[Path=\fontes/montserrat/, Extension=.otf]
+
+% ---------- Pacotes comuns ----------------------------------------------------
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,shapes.geometric,fit,backgrounds,shadows.blur,decorations.pathmorphing}
+\usepackage{booktabs,tabularx,array}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{csquotes}
+
+% ---------- Código (listings) -------------------------------------------------
+\lstdefinestyle{terminal}{
+  basicstyle=\ttfamily\small\color{cinzaTexto},
+  columns=fixed, basewidth=0.6em, keepspaces=true,
+  breaklines=true, breakatwhitespace=true,
+  showstringspaces=false, upquote=true,
+  commentstyle=\color{verdeMB},
+  keywordstyle=\color{azulMB}\bfseries,
+  morekeywords={git,glab,claude},
+  morecomment=[l]{\#},
+  literate=
+    {á}{{\'a}}1 {à}{{\`a}}1 {ã}{{\~a}}1 {â}{{\^a}}1
+    {é}{{\'e}}1 {ê}{{\^e}}1 {í}{{\'i}}1 {ó}{{\'o}}1
+    {õ}{{\~o}}1 {ô}{{\^o}}1 {ú}{{\'u}}1 {ç}{{\c c}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1
+    {Ú}{{\'U}}1 {Ç}{{\c C}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
+    {→}{{$\rightarrow$}}1 {—}{{---}}1 {·}{{$\cdot$}}1
+}
+\lstdefinestyle{saida}{style=terminal, keywordstyle=, commentstyle=,
+  basicstyle=\ttfamily\small\color{cinzaTexto}}
+
+% ---------- Diagramas de histórico Git (TikZ) ---------------------------------
+\tikzset{
+  commit/.style={circle, draw=#1, fill=white, line width=1.6pt,
+    minimum size=7mm, inner sep=0pt, font=\small\bfseries\color{#1}},
+  commit/.default=azulMB,
+  commitm/.style={circle, draw=ouroMB!80!black, fill=ouroMB, line width=1.6pt,
+    minimum size=8mm, inner sep=0pt, font=\small\bfseries\color{azulMB}},
+  hist/.style={line width=1.8pt, color=#1},
+  hist/.default=azulMB,
+  rotulo/.style={rounded corners=2pt, fill=#1, text=white,
+    font=\scriptsize\bfseries, inner sep=3pt},
+  rotulo/.default=azulMB,
+  caixa/.style={rounded corners=3pt, draw=#1, line width=1pt, fill=#1!8,
+    align=center, font=\small, inner sep=5pt, text=azulMB},
+  caixa/.default=azulMB,
+  seta/.style={-{Stealth[length=3mm]}, line width=1.2pt, color=azulMB},
+  setafina/.style={-{Stealth[length=2mm]}, line width=0.8pt, color=azulMedio},
+}
+
+% ---------- Marca do projeto (texto) -------------------------------------------
+% Usada onde a versão interna tinha o logotipo da Marinha, que não entra na
+% versão pública. \marca[cor das letras]{tamanho em pt}
+\newcommand{\marca}[2][azulMB]{{\titulofonte\fontsize{#2}{#2}\selectfont
+  \textcolor{#1}{GIT}\textcolor{ouroMB}{\,·\,}\textcolor{#1}{IA}\textcolor{ouroMB}{\,·\,}\textcolor{#1}{DOCS}}}
