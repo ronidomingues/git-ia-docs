@@ -7,6 +7,8 @@
 1. **Integrar um sistema que já tinha histórico Git a um GitLab Self-Managed** em que a `main` já existe e está protegida.
 2. **Documentar sistemas legados com um agente de IA** (Claude Code), usando um prompt que evoluiu a partir das próprias falhas.
 
+### 📖 **[Acessar o material publicado](https://andradasdev.github.io/git-ia/)**: apostila e slides no navegador
+
 ## O que tem aqui
 
 | Pasta | Conteúdo |
@@ -49,6 +51,17 @@ A publicação foi autorizada. Em relação ao material interno, esta versão:
 - usa uma foto da Ilha das Cobras com licença livre (CC BY-SA 2.0).
 
 Os sistemas institucionais citados aparecem anonimizados (Sistema A, B…), e o material não contém código, endereços nem dados internos. Este é um trabalho pessoal: não é publicação oficial da Marinha do Brasil.
+
+## Publicação automática
+
+Este é o repositório de **código**: tudo o que é pesado mora aqui. A cada push na `main`, o workflow [`.github/workflows/build.yml`](.github/workflows/build.yml):
+
+1. compila a apresentação, a apostila e o roteiro de falas com XeLaTeX;
+2. verifica se os PDFs saíram íntegros;
+3. commita os PDFs de volta aqui;
+4. envia a apostila, os slides e o card de prévia para [`andradasdev/git-ia`](https://github.com/andradasdev/git-ia), que publica o site no GitHub Pages.
+
+O roteiro de falas não vai para o site: ele é a versão do apresentador. O envio usa o secret `GIT_IA_ANDRADASDEV`, e o passo a passo para criá-lo está em [`andradasdev/git-ia/documentacao`](https://github.com/andradasdev/git-ia/blob/main/documentacao/autenticacao-github-actions.md).
 
 ## Compilar
 
