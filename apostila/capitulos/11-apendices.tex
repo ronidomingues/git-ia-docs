@@ -60,6 +60,20 @@ git restore --staged arq & tirar da preparação \\
 git revert <commit> & desfazer com novo commit \\
 \end{tabularx}
 
+\subsection*{\color{verdeMB}Assinatura}
+\begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
+gpg --full-generate-key & criar chave GPG \\
+gpg --list-secret-keys --keyid-format=long & ver as chaves GPG \\
+gpg --armor --export ID & exportar a chave pública \\
+git config --global gpg.format ssh & assinar com SSH \\
+git config --global user.signingkey ... & escolher a chave \\
+git config --global commit.gpgsign true & assinar todo commit \\
+git commit -S -m "..." & assinar um commit \\
+git log --show-signature -1 & conferir a assinatura \\
+git log --format='\%h \%G? \%s' & estado da assinatura (G, N, B, E) \\
+git tag -s v1.0 -m "..." & criar tag assinada \\
+\end{tabularx}
+
 \subsection*{\color{verdeMB}GitLab CLI}
 \begin{tabularx}{\linewidth}{@{}>{\leavevmode\ttfamily\small\color{azulMB}}p{6.4cm} X@{}}
 glab auth login & autenticar \\
@@ -79,13 +93,18 @@ glab ci status & ver o pipeline \\
 \item[Agente de IA] Programa baseado em modelo de linguagem que executa tarefas num ambiente (ler arquivos, rodar comandos, escrever documentos), e não só conversa.
 \item[Ancestral comum] Commit a partir do qual duas branches se separaram. Sem ele, o Git recusa o merge comum.
 \item[Área de preparação (\emph{staging})] Onde ficam as mudanças escolhidas para o próximo commit.
+\item[Assinatura de commit] Marca criptográfica, feita com a sua chave privada, que prova quem criou o commit. Gera o selo \emph{Verified}.
 \item[Bare repository] Repositório sem pasta de trabalho, só com o histórico. É o que um servidor guarda.
 \item[Branch] Linha de desenvolvimento; tecnicamente, um ponteiro para um commit.
 \item[Branch protegida] Branch que não aceita push direto; mudanças só por Merge Request.
 \item[CI/CD] Integração e entrega contínuas: testes e implantação automáticos a cada mudança.
+\item[Chave pública e chave privada] Par de chaves: a privada fica só com você e assina; a pública pode ser distribuída e serve para conferir a assinatura.
 \item[Commit] Registro de um estado do projeto, com autor, data e mensagem.
+\item[Conventional Commits] Especificação de mensagens de commit no formato \texttt{tipo(escopo): descrição}.
 \item[Conflito] Quando duas mudanças na mesma região de um arquivo não podem ser combinadas automaticamente.
 \item[Fast-forward] Merge em que o Git só avança o ponteiro, porque não houve trabalho paralelo.
+\item[Gitmoji] Convenção que associa um emoji a cada tipo de mudança, escrito como código (\texttt{:sparkles:}).
+\item[GPG] GnuPG, programa que cria chaves e assina dados. Uma das duas formas de assinar commits.
 \item[GAP] Lacuna entre o estado atual (AS-IS) e o desejado (TO-BE), ou informação que falta e não deve ser inventada.
 \item[HEAD] Referência para onde você está agora (em geral, a branch atual).
 \item[Merge] Integração de duas linhas de histórico.
@@ -98,6 +117,7 @@ glab ci status & ver o pipeline \\
 \item[Repositório] Pasta cujo histórico é controlado pelo Git.
 \item[Self-Managed] GitLab instalado e administrado pela própria organização.
 \item[Token] Na IA, pedaço de texto usado para medir custo e limite. No GitLab, credencial de acesso (trate como senha).
+\item[Verified / Unverified] Selos do GitHub e do GitLab: assinatura conferida, ou assinatura presente mas que não pôde ser conferida.
 \end{description}
 
 % -----------------------------------------------------------------------------
@@ -168,6 +188,11 @@ As cores seguem o Manual de Identidade Visual da Marinha do Brasil: Azul Marinha
   \item \textbf{Documentação do GitLab}: \url{https://docs.gitlab.com}. Veja em especial \emph{Merge requests} e \emph{Protected branches}.
   \item \textbf{GitLab CLI (\texttt{glab})}: \url{https://gitlab.com/gitlab-org/cli}.
   \item \textbf{Claude Code}: \url{https://docs.claude.com/en/docs/claude-code/overview}.
+  \item \textbf{Conventional Commits}: \url{https://www.conventionalcommits.org/pt-br/v1.0.0/}.
+  \item \textbf{Gitmoji}: \url{https://gitmoji.dev}.
+  \item \textbf{Padrões de commits}, de Iuri Silva, uma referência em português: \url{https://github.com/iuricode/padroes-de-commits}.
+  \item \textbf{Assinatura de commits no GitHub}: \url{https://docs.github.com/pt/authentication/managing-commit-signature-verification}.
+  \item \textbf{Assinatura de commits no GitLab}: \url{https://docs.gitlab.com/user/project/repository/signed_commits/}.
   \item \textbf{Learn Git Branching}, exercícios visuais e interativos de branch e merge, em português: \url{https://learngitbranching.js.org/?locale=pt_BR}.
 \end{itemize}
 
