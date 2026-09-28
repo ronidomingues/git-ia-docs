@@ -1,0 +1,176 @@
+name: Compilar LaTeX e publicar em andradasdev/git-ia
+
+# ============================================================
+# Este repositório é o de CÓDIGO. Ele não publica site nenhum.
+#
+#   1. compila a apresentação, a apostila e o roteiro de falas;
+#   2. verifica se os PDFs saíram íntegros;
+#   3. commita os PDFs de volta AQUI (para quem clona ter tudo);
+#   4. envia a apostila e os slides para andradasdev/git-ia,
+#      onde um segundo workflow os publica no GitHub Pages.
+#
+# PRÉ-REQUISITO: o secret GIT_IA_ANDRADASDEV precisa existir neste
+# repositório. O passo a passo de como criá-lo está em:
+#   https://github.com/andradasdev/git-ia/blob/main/documentacao/autenticacao-github-actions.md
+# ============================================================
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.pdf'        # não re-disparar pelo commit de PDF feito pelo bot
+      - 'divulgacao/**' # cards e textos de divulgação não mudam os PDFs
+  workflow_dispatch:
+
+permissions:
+  contents: write   # commitar os PDFs compilados NESTE repositório
+
+# Duas pushes seguidas não podem publicar ao mesmo tempo, senão uma
+# sobrescreve a outra e o "git push" dá conflito.
+concurrency:
+  group: publicacao-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REPO_PUBLICACAO: andradasdev/git-ia
+
+jobs:
+  build-and-publish:
+    # Impede laço infinito: o commit de PDF do bot não dispara nova execução.
+    if: ${{ github.event.head_commit.author.name != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # ------------------------------------------------------------
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # necessário para o rebase antes do push
+
+      # ------------------------------------------------------------
+      # Lista derivada dos pacotes que os documentos realmente carregam.
+      # As fontes de texto (Montserrat, Bebas Neue, Fira Mono) vêm do
+      # próprio repositório, em assets/fontes/.
+      #   texlive-xetex             -> xelatex (fontspec)
+      #   texlive-latex-recommended -> beamer, fontspec, polyglossia, microtype
+      #   texlive-latex-extra       -> tcolorbox, titlesec, enumitem, csquotes
+      #   texlive-pictures          -> tikz, pgfplots
+      #   texlive-plain-generic     -> dirtree
+      #   texlive-fonts-extra       -> fontawesome5 (os ícones). É o pacote
+      #                                mais pesado da lista, mas é o único
+      #                                que traz o Font Awesome 5.
+      #   texlive-fonts-recommended -> pzdr.tfm, que o hyperref usa nos links
+      #   texlive-lang-portuguese   -> hifenização pt-BR
+      - name: Instalar LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-base \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-pictures \
+            texlive-plain-generic \
+            texlive-xetex \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            texlive-lang-portuguese \
+            latexmk
+
+      # ------------------------------------------------------------
+      # Cada documento mora na própria pasta, porque os caminhos de
+      # fontes e imagens são relativos a ela (../assets, ../estilo).
+      - name: Compilar os documentos
+        run: |
+          set -euo pipefail
+          for doc in apresentacao/apresentacao apostila/apostila roteiro-de-falas/roteiro_de_falas; do
+            echo "▸ compilando $doc.tex"
+            ( cd "$(dirname "$doc")" && \
+              latexmk -xelatex -interaction=nonstopmode -halt-on-error "$(basename "$doc").tex" )
+          done
+
+      # ------------------------------------------------------------
+      # Um PDF pode sair com exit 0 e ainda estar quebrado: referências
+      # cruzadas não resolvidas viram "??".
+      - name: Verificar a integridade dos PDFs
+        run: |
+          set -euo pipefail
+          falhou=0
+          for doc in apresentacao/apresentacao apostila/apostila roteiro-de-falas/roteiro_de_falas; do
+            [ -f "$doc.pdf" ] || { echo "::error::$doc.pdf não foi gerado"; falhou=1; continue; }
+            for padrao in 'Citation .* undefined' 'Reference .* undefined'; do
+              n=$(grep -cE "$padrao" "$doc.log" || true)
+              if [ "$n" -gt 0 ]; then
+                echo "::error::$doc: $n ocorrência(s) de '$padrao'"
+                falhou=1
+              fi
+            done
+            echo "✓ $doc.pdf íntegro"
+          done
+          [ "$falhou" -eq 0 ]
+
+      # ------------------------------------------------------------
+      - name: Commitar os PDFs neste repositório
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apresentacao/apresentacao.pdf apostila/apostila.pdf roteiro-de-falas/roteiro_de_falas.pdf
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração de PDF para commitar"
+            exit 0
+          fi
+          git commit -m "docs: atualizar PDFs compilados [skip ci]"
+          # Alguém pode ter feito push enquanto o LaTeX compilava.
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      # ============================================================
+      # ENVIO PARA O REPOSITÓRIO DE PUBLICAÇÃO
+      # ============================================================
+      # Só o que o público precisa: a apostila e os slides, mais o card
+      # usado como imagem de prévia do site. O roteiro de falas NÃO vai:
+      # ele é a versão do apresentador e fica só neste repositório.
+      - name: Verificar se o token de publicação existe
+        env:
+          # Nunca interpole um secret direto no corpo do script: o valor
+          # passaria a fazer parte do comando. Passe por variável de ambiente.
+          PUBLISH_TOKEN: ${{ secrets.GIT_IA_ANDRADASDEV }}
+        run: |
+          if [ -z "${PUBLISH_TOKEN}" ]; then
+            echo "::error::O secret GIT_IA_ANDRADASDEV não está configurado neste repositório."
+            echo "::error::Passo a passo: https://github.com/${REPO_PUBLICACAO}/blob/main/documentacao/autenticacao-github-actions.md"
+            exit 1
+          fi
+          echo "GIT_IA_ANDRADASDEV presente"
+
+      - name: Enviar artefatos para ${{ env.REPO_PUBLICACAO }}
+        env:
+          PUBLISH_TOKEN: ${{ secrets.GIT_IA_ANDRADASDEV }}
+        run: |
+          set -euo pipefail
+
+          # O token entra só na URL do remote, e o Actions mascara o valor
+          # dele em qualquer saída de log.
+          git clone --depth 1 \
+            "https://x-access-token:${PUBLISH_TOKEN}@github.com/${REPO_PUBLICACAO}.git" \
+            /tmp/publicacao
+
+          mkdir -p /tmp/publicacao/docs /tmp/publicacao/assets
+          cp apostila/apostila.pdf               /tmp/publicacao/docs/
+          cp apresentacao/apresentacao.pdf       /tmp/publicacao/docs/
+          cp divulgacao/github-social-preview.png /tmp/publicacao/assets/card.png
+
+          cd /tmp/publicacao
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/apostila.pdf docs/apresentacao.pdf assets/card.png
+
+          if git diff --cached --quiet; then
+            echo "Artefatos idênticos aos publicados — nada a enviar"
+            exit 0
+          fi
+
+          git commit -m "publicar: artefatos de ${GITHUB_REPOSITORY}@${GITHUB_SHA:0:7}"
+          git push origin HEAD:main
+          echo "Artefatos enviados. O workflow de ${REPO_PUBLICACAO} publica o site."
