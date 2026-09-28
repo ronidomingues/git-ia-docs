@@ -1,7 +1,7 @@
 \chapter{Exercícios práticos}
 \label{cap:exercicios}
 
-Os exercícios seguem a ordem da capacitação. As partes 1 e 4 funcionam só com o Git instalado, sem internet e sem servidor. A parte 2 precisa de acesso a um GitLab. A parte 3 precisa de um agente de IA e de um projeto que você possa usar.
+Os exercícios seguem a ordem da apostila. As partes 1, 4 e 5 e o exercício 6.1 funcionam só com o Git instalado, sem internet e sem servidor. A parte 2 precisa de acesso a um GitLab. A parte 3 precisa de um agente de IA e de um projeto que você possa usar. Os exercícios 6.2 e 6.3 precisam de uma conta no GitHub ou no GitLab.
 
 \begin{dica}
 Faça os exercícios numa pasta de treino, fora de qualquer projeto real. Se algo der errado, apague a pasta e comece de novo: é para isso que ela existe.
@@ -249,3 +249,83 @@ git commit -am "Ajuste"
   \item No topo: o commit \enquote{Merge remote-tracking branch 'origin/main' into desenvolvimento}, com duas linhas chegando nele. Uma traz \enquote{Primeira versão} e \enquote{Ajuste}, a outra traz \enquote{Initial commit}.
 \end{enumerate}
 \end{tcolorbox}
+
+% -----------------------------------------------------------------------------
+\section{Parte 5 — Padrões de commit}
+
+\begin{exercicio}{5.1 — Reescrever mensagens ruins}
+Reescreva cada mensagem abaixo no formato Conventional Commits (capítulo \ref{cap:padroes}). Escolha o tipo, invente um escopo que faça sentido e escreva uma descrição curta.
+\begin{enumerate}
+  \item \enquote{arrumei o erro que dava quando a senha tava vazia}
+  \item \enquote{coloquei explicação de como instalar no readme}
+  \item \enquote{mudei a identação do arquivo de rotas}
+  \item \enquote{agora o relatório sai em pdf também}
+  \item \enquote{atualizei o pipeline pra rodar os testes}
+  \item \enquote{a API agora exige token em tudo, quem não mandar leva 401}
+\end{enumerate}
+\end{exercicio}
+
+\begin{exercicio}{5.2 — Aplicar no seu repositório de treino}
+No repositório \arq{exercicio-git} da Parte 1, faça três commits pequenos, cada um com um tipo diferente (\arq{feat}, \arq{docs} e \arq{fix}). Depois rode \cmd{git log --oneline} e confira se dá para entender o histórico só lendo as mensagens.
+\end{exercicio}
+
+\begin{tcolorbox}[base, colback=cinzaSuave, colframe=cinzaSuave, title={\faKey\enspace Respostas possíveis do 5.1}, coltitle=azulMB, attach title to upper={\\[2pt]}]
+\ttfamily\small
+\begin{enumerate}
+  \item fix(login): aceita tentativa com senha vazia sem erro
+  \item docs(readme): explica a instalação
+  \item style(rotas): corrige a indentação
+  \item feat(relatorio): exporta em PDF
+  \item ci: roda os testes no pipeline
+  \item feat(api)!: exige token em todos os endpoints
+\end{enumerate}
+\rmfamily\normalsize
+No item 6, o \arq{!} marca a quebra de compatibilidade. Um rodapé \arq{BREAKING CHANGE: clientes sem token recebem 401} deixaria isso ainda mais claro. Os escopos e as palavras podem variar: o importante é o tipo certo e uma descrição que diga o que mudou.
+\end{tcolorbox}
+
+% -----------------------------------------------------------------------------
+\section{Parte 6 — Assinatura de commits}
+
+\begin{exercicio}{6.1 — Ver o problema com os próprios olhos}
+Num repositório de treino, faça um commit com um nome e um e-mail que não são seus e confira o que o \cmd{git log} mostra:
+\end{exercicio}
+
+\begin{terminal}
+git -c user.name="Pessoa Qualquer" -c user.email="qualquer@exemplo.com" \
+    commit --allow-empty -m "Quem fez este commit?"
+git log --format='%an <%ae> | assinatura: %G?' -1
+\end{terminal}
+\begin{saida}
+Pessoa Qualquer <qualquer@exemplo.com> | assinatura: N
+\end{saida}
+
+O Git aceitou a identidade falsa, e o \arq{N} diz que não há assinatura.
+
+\begin{exercicio}{6.2 — Assinar de verdade}
+Siga o capítulo \ref{cap:assinatura} com o método que preferir (GPG ou SSH):
+\begin{enumerate}
+  \item crie ou reaproveite uma chave;
+  \item cadastre a chave no GitHub ou no GitLab;
+  \item configure o Git para assinar todo commit;
+  \item faça um commit num repositório seu e envie com \cmd{git push};
+  \item confira o selo na página de commits.
+\end{enumerate}
+\end{exercicio}
+
+\begin{verifique}
+No terminal, \cmd{git log --format='\%h \%G? \%s' -1} mostra a letra \arq{G}. No site, o commit tem o selo \textbf{Verified}. Se aparecer \textbf{Unverified}, confira primeiro o e-mail: \cmd{git config user.email} precisa ser um e-mail verificado na sua conta.
+\end{verifique}
+
+\begin{exercicio}{6.3 — Uma tag assinada}
+Crie e confira uma tag assinada:
+\end{exercicio}
+
+\begin{terminal}
+git tag -s v1.0 -m "Versão 1.0"
+git tag -v v1.0
+git push origin v1.0
+\end{terminal}
+
+\begin{verifique}
+O \cmd{git tag -v} mostra a mesma confirmação de assinatura do \cmd{git log --show-signature}, e a tag aparece como \textbf{Verified} na página de tags do GitHub.
+\end{verifique}
